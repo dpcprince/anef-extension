@@ -57,12 +57,21 @@
   });
 
   function initFilters(prefectures) {
+    // Statuts présents dans les dossiers en cours (page délais exclut les dossiers terminés)
+    var availableStatuses = {};
+    for (var si = 0; si < state.summaries.length; si++) {
+      if (state.summaries[si].isFinished) continue;
+      var st = (state.summaries[si].statut || '').toLowerCase();
+      if (st) availableStatuses[st] = true;
+    }
+    var availableList = Object.keys(availableStatuses);
+
     F.createPrefectureMultiSelect('filter-prefecture-container', prefectures, state.filters.prefecture, function(v) {
       state.filters.prefecture = v; syncAndRender();
     });
     F.createStatusFilter('filter-status-container', state.filters.statut, function(v) {
       state.filters.statut = v; syncAndRender();
-    });
+    }, { filterStatuses: availableList });
     F.createOutcomeFilter('filter-outcome-container', state.filters.outcome, function(v) {
       state.filters.outcome = v; syncAndRender();
     });

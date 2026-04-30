@@ -277,11 +277,13 @@
   }
 
   /** Create status filter using searchable select (replaces step pills) */
-  function createStatusFilter(containerId, currentValue, onChange) {
+  function createStatusFilter(containerId, currentValue, onChange, options) {
     if (!ANEF.ui || !ANEF.ui.createStatusSelect) return;
+    options = options || {};
     ANEF.ui.createStatusSelect(containerId, {
       includeAll: true,
       defaultValue: currentValue || 'all',
+      filterStatuses: options.filterStatuses,
       onChange: function(statusCode, stepNumber) {
         onChange(statusCode);
       }

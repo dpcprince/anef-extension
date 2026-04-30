@@ -70,10 +70,19 @@
   });
 
   function initSectionFilters(prefectures) {
+    // Statuts effectivement présents dans les dossiers — évite de proposer
+    // des statuts (ex. "dossier_depose") jamais atteints par les snapshots.
+    var availableStatuses = {};
+    for (var si = 0; si < state.summaries.length; si++) {
+      var st = (state.summaries[si].statut || '').toLowerCase();
+      if (st) availableStatuses[st] = true;
+    }
+    var availableList = Object.keys(availableStatuses);
+
     // Parcours des dossiers: statut + prefecture
     F.createStatusFilter('dossier-filter-statut-container', 'all', function(v) {
       state.dossierFilters.statut = v; state.page = 1; renderAll();
-    });
+    }, { filterStatuses: availableList });
     F.createSearchablePrefectureDropdown('dossier-filter-prefecture-container', prefectures, '', function(v) {
       state.dossierFilters.prefecture = v || 'all'; state.page = 1; renderAll();
     });
@@ -81,7 +90,7 @@
     // Histogram: statut + prefecture
     F.createStatusFilter('histogram-filter-statut-container', 'all', function(v) {
       state.histogramFilters.statut = v; renderAll();
-    });
+    }, { filterStatuses: availableList });
     F.createSearchablePrefectureDropdown('histogram-filter-prefecture-container', prefectures, '', function(v) {
       state.histogramFilters.prefecture = v || 'all'; renderAll();
     });

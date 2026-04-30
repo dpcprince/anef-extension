@@ -14,6 +14,7 @@
    * @param {string} options.defaultValue - Default status code or 'all'
    * @param {boolean} options.includeAll - Add "Toutes les étapes" option
    * @param {number[]} options.filterSteps - Only include these step numbers
+   * @param {string[]} options.filterStatuses - Only include these status codes (lowercase)
    * @param {function} options.onChange - Callback(statusCode, stepNumber)
    * @param {string} options.placeholder - Search field placeholder
    */
@@ -25,6 +26,12 @@
     var defaultValue = options.defaultValue || 'all';
     var includeAll = options.includeAll !== false;
     var filterSteps = options.filterSteps || null;
+    var filterStatuses = options.filterStatuses || null;
+    var statusSet = null;
+    if (filterStatuses && filterStatuses.length) {
+      statusSet = {};
+      for (var fs = 0; fs < filterStatuses.length; fs++) statusSet[filterStatuses[fs]] = true;
+    }
     var onChange = options.onChange || function() {};
     var placeholder = options.placeholder || 'Rechercher un statut...';
 
@@ -38,6 +45,7 @@
     for (var i = 0; i < codes.length; i++) {
       var info = STATUTS[codes[i]];
       if (filterSteps && filterSteps.indexOf(info.etape) === -1) continue;
+      if (statusSet && !statusSet[codes[i]]) continue;
       statutList.push({ code: codes[i], etape: info.etape, rang: info.rang, explication: info.explication });
     }
     statutList.sort(function(a, b) { return a.rang - b.rang; });

@@ -66,20 +66,24 @@
   });
 
   function initFilters() {
-    // Build unique sorted prefecture list
+    // Build unique sorted prefecture list + statuts présents dans les dossiers
     var prefSet = {};
+    var statusSet = {};
     for (var i = 0; i < state.summaries.length; i++) {
       var p = state.summaries[i].prefecture;
       if (p) prefSet[p] = true;
+      var st = (state.summaries[i].statut || '').toLowerCase();
+      if (st) statusSet[st] = true;
     }
     var prefList = Object.keys(prefSet).sort();
+    var availableList = Object.keys(statusSet);
 
     F.createPrefectureMultiSelect('filter-prefecture-container', prefList, state.filters.prefecture, function(v) {
       state.filters.prefecture = v; state.tablePage = 1; state.barPage = 1; state.hmPage = 1; state.distribPage = 1; syncAndRender();
     });
     F.createStatusFilter('filter-status-container', state.filters.statut, function(v) {
       state.filters.statut = v; state.tablePage = 1; state.barPage = 1; state.hmPage = 1; state.distribPage = 1; syncAndRender();
-    });
+    }, { filterStatuses: availableList });
   }
 
   function syncAndRender() {
