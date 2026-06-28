@@ -41,7 +41,8 @@ If the project ever justifies official write access from this fork, the path is:
 | `popup/popup.js` | **Bug fix #4**: prefecture-canonicalisation regex `\s+`→`\s*` for apostrophe-suffix connectors. | **★** |
 | `popup/popup.js` | **Bug fix #5**: `btnDashboard` added to `initializeElements()`. | **★** |
 | `popup/popup.js` | **New**: `renderCohortComparison()` — async, fetches `${DASHBOARD_BASE_URL}/data/snapshots.json` (cached 24h in `chrome.storage.local`), computes per-(prefecture × statut) cohort, displays percentile + cohort median inline. Falls back to national cohort when local has < 10 dossiers. | No |
-| `popup/popup.js` | **New**: `loadCohortIndex()` + `canonicalisePrefecture()` + `escapeHtml()` helpers for the inline comparison. | No |
+| `popup/popup.js` | **New**: `loadCohortIndex()` + `canonicalisePrefecture()` + `escapeHtml()` helpers for the inline comparison. **Bug fix #7**: dedup duplicate `escapeHtml` declaration (the multi-dossier tab additions also declared it; in ES modules the second declaration is a SyntaxError that breaks the entire popup). | **★** (Bug fix #7) |
+| `.github/workflows/release.yml` | Rewritten for fork: trigger on tag push only (not every commit), skip Supabase secret injection (constants hardcoded), skip Chrome Web Store publish (no CWS listing). Builds ZIP + creates GitHub Release with sideload instructions. | No (fork-specific) |
 | `lib/constants.js` | `DASHBOARD_BASE_URL` + `DASHBOARD_MON_DOSSIER_PATH` constants. | No |
 | `options/options.html` | Replaces info-only banner with real `<input type="checkbox">` toggle. | **★** |
 | `options/options.js` | **Bug fix #6**: `settingAnonymousStats` added to `initializeElements()`; wired to load/save. | **★** |
