@@ -66,6 +66,22 @@
     }
   }
 
+  // Signed variant: returns the signed day delta. Use for transition analysis,
+  // wait-time computations, or anywhere a negative interval is a legitimate
+  // signal (e.g. backwards transitions in the status pipeline) rather than
+  // something to floor at zero. `daysDiff` remains the safe default for
+  // display.
+  function daysDiffSigned(dateStr1, dateStr2OrDate) {
+    try {
+      var u1 = _toCalendarUTC(dateStr1);
+      var u2 = _toCalendarUTC(dateStr2OrDate);
+      if (isNaN(u1) || isNaN(u2)) return null;
+      return Math.round((u2 - u1) / 86400000);
+    } catch(e) {
+      return null;
+    }
+  }
+
   function formatDuration(days) {
     if (days === null || days === undefined || isNaN(days) || days < 0) return '\u2014';
     // i18n : pluriels via Intl.PluralRules (catalogue dur.*). Repli FR inline si
@@ -249,6 +265,7 @@
 
   ANEF.utils = {
     daysDiff: daysDiff,
+    daysDiffSigned: daysDiffSigned,
     formatDuration: formatDuration,
     formatDateFr: formatDateFr,
     formatDateTimeFr: formatDateTimeFr,

@@ -15,7 +15,8 @@
     summaries: [],
     snapshots: [],
     grouped: null,
-    filters: {}
+    filters: {},
+    horizonMonths: 12
   };
 
   document.addEventListener('DOMContentLoaded', async function() {
@@ -41,6 +42,8 @@
       var prefectures = D.getUniquePrefectures(state.summaries);
       initFilters(prefectures);
       initEstimator(prefectures);
+      initHorizonToggle();
+      renderKMCompletion();
       renderAll();
 
       // Lazy-render bar chart when details is opened
@@ -120,6 +123,95 @@
     return out;
   }
 
+  /** Cycle median on closed-favorable dossiers (relatable, no censoring math).
+   *  Plus the competing-risks horizons table (Aalen-Johansen). */
+  function renderKMCompletion() {
+    // 1) Cycle median on closed favorable
+    var fav = state.summaries.filter(function(s) {
+      return C.isPositiveStatus(s.statut) && s.daysSinceDeposit != null;
+    }).map(function(s) { return s.daysSinceDeposit; }).sort(function(a, b) { return a - b; });
+    var valEl = document.getElementById('km-completion-value');
+    var noteEl = document.getElementById('km-completion-note');
+    if (valEl && noteEl) {
+      if (fav.length === 0) {
+        valEl.textContent = '—';
+        noteEl.textContent = ANEF.t('delais.cycle_note_empty') || 'Pas assez de données pour estimer la médiane.';
+      } else {
+        var cycleMed = fav[Math.floor(fav.length / 2)];
+        valEl.textContent = U.formatDuration(cycleMed);
+        noteEl.innerHTML = (ANEF.t('delais.cycle_note') || '{n} décrets observés')
+          .replace('{n}', fav.length.toLocaleString('fr-FR'));
+      }
+    }
+
+    // 2) Competing-risks horizons table
+    var cr = M.aalenJohansenCompetingRisks ? M.aalenJohansenCompetingRisks(state.summaries, state.grouped) : null;
+    var crTbody = document.getElementById('cr-tbody');
+    if (cr && crTbody) {
+      var horizons = [12, 24, 36, 48, 60];
+      var html = '';
+      horizons.forEach(function(m) {
+        var h = cr.horizons[m];
+        if (!h) return;
+        var labelKey = 'delais.cr_horizon_' + m + 'mo';
+        var label = ANEF.t(labelKey) || (m / 12) + ' an' + (m > 12 ? 's' : '');
+        html += '<tr>'
+          + '<td><strong>' + label + '</strong></td>'
+          + '<td class="num" style="color:var(--green)">' + h.favorable.toFixed(1).replace('.', ',') + ' %</td>'
+          + '<td class="num" style="color:var(--red)">' + h.negative.toFixed(1).replace('.', ',') + ' %</td>'
+          + '<td class="num" style="color:var(--orange)">' + h.pending.toFixed(1).replace('.', ',') + ' %</td>'
+          + '</tr>';
+      });
+      crTbody.innerHTML = html;
+      // Footnote: cite the 4-year split as a concrete read
+      var foot = document.getElementById('cr-footnote');
+      if (foot && cr.horizons[48]) {
+        var h48 = cr.horizons[48];
+        foot.innerHTML = (ANEF.t('delais.cr_footnote') || 'Lecture : à 4 ans après dépôt, {fav}% des dossiers ont obtenu un décret, {neg}% un refus ou RAPO, et {pend}% sont encore en attente — la « longue traîne » que la médiane simple masquait.')
+          .replace('{fav}', h48.favorable.toFixed(0))
+          .replace('{neg}', h48.negative.toFixed(0))
+          .replace('{pend}', h48.pending.toFixed(0));
+      }
+    }
+
+    // Ping-pong KPI — % of dossiers that re-entered the same statut at least once
+    var ppValEl = document.getElementById('pingpong-value');
+    if (ppValEl && D.computePingPongStats) {
+      var pp = D.computePingPongStats(state.snapshots);
+      if (pp.nDossiers > 0) {
+        ppValEl.textContent = pp.pctPingPong.toFixed(1).replace('.', ',') + ' %';
+      } else {
+        ppValEl.textContent = '—';
+      }
+    }
+  }
+
+  /** anef-statut fork: render the backward-transitions panel. Runs on every
+   *  filter change so the table reflects the current selection. */
+  function renderBackwardTransitions() {
+    var tbody = document.getElementById('backward-tbody');
+    var empty = document.getElementById('backward-empty');
+    if (!tbody) return;
+    var grouped = state._filteredGrouped || state.grouped;
+    var rows = D.computeBackwardTransitions(grouped).slice(0, 15);
+    if (!rows.length) {
+      tbody.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    var html = '';
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      html += '<tr>'
+        + '<td>' + r.from_etape + ' — ' + U.escapeHtml(r.from_phase) + '</td>'
+        + '<td>' + r.to_etape + ' — ' + U.escapeHtml(r.to_phase) + '</td>'
+        + '<td class="num">' + r.count.toLocaleString('fr-FR') + '</td>'
+        + '</tr>';
+    }
+    tbody.innerHTML = html;
+  }
+
   function renderAll() {
     var filtered = getFiltered();
     var filteredGrouped = state._filteredGrouped;
@@ -141,6 +233,219 @@
 
     renderDurationBarChart(durations);
     renderPercentileTable(waitTimes);
+    renderBackwardTransitions();
+    renderFunnel();
+    renderSankey();
+    renderPerEtapeOutcomes();
+  }
+
+  // ─── Pass 9: Pipeline funnel ─────────────────────────────
+
+  function renderFunnel() {
+    var container = document.getElementById('funnel-container');
+    var noData = document.getElementById('funnel-no-data');
+    if (!container) return;
+
+    var grouped = state._filteredGrouped || state.grouped;
+    var rows = M.pipelineFunnel ? M.pipelineFunnel(grouped, null) : null;
+    if (!rows || !rows.length || rows.every(function(r) { return r.n_reached === 0; })) {
+      container.innerHTML = '';
+      container.appendChild(noData);
+      noData.style.display = 'block';
+      return;
+    }
+    noData.style.display = 'none';
+
+    var maxReached = 0;
+    rows.forEach(function(r) { if (r.n_reached > maxReached) maxReached = r.n_reached; });
+
+    var html = '';
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (r.n_reached === 0) continue;
+      var widthPct = Math.max(8, Math.round(r.n_reached / maxReached * 100));
+      var pg = r.n_progressed, st = r.n_stuck, ng = r.n_terminal_negative;
+      var sumSeg = pg + st + ng;
+      var pPg = sumSeg > 0 ? pg / sumSeg * 100 : 0;
+      var pSt = sumSeg > 0 ? st / sumSeg * 100 : 0;
+      var pNg = sumSeg > 0 ? ng / sumSeg * 100 : 0;
+
+      var stepName = C.PHASE_NAMES[r.etape] || ANEF.t('delais.funnel_step', { n: r.etape });
+      var titleLine = r.etape + '. ' + U.escapeHtml(stepName);
+      var nLine = ANEF.t('delais.funnel_n_reached', { n: r.n_reached });
+
+      var segs = '';
+      if (pPg > 0) {
+        var label = pPg > 12 ? pg : '';
+        segs += '<div class="funnel-bar-segment funnel-bar-segment-progressed" style="flex-basis:' + pPg + '%" title="' + U.escapeHtml(ANEF.t('delais.funnel_tip_progressed', { n: pg })) + '">' + label + '</div>';
+      }
+      if (pSt > 0) {
+        var labelSt = pSt > 12 ? st : '';
+        segs += '<div class="funnel-bar-segment funnel-bar-segment-stuck" style="flex-basis:' + pSt + '%" title="' + U.escapeHtml(ANEF.t('delais.funnel_tip_stuck', { n: st })) + '">' + labelSt + '</div>';
+      }
+      if (pNg > 0) {
+        var labelNg = pNg > 12 ? ng : '';
+        segs += '<div class="funnel-bar-segment funnel-bar-segment-neg" style="flex-basis:' + pNg + '%" title="' + U.escapeHtml(ANEF.t('delais.funnel_tip_neg', { n: ng })) + '">' + labelNg + '</div>';
+      }
+
+      html += '<div class="funnel-row">' +
+        '<div class="funnel-label">' + titleLine + ' <span class="funnel-n">(' + nLine + ')</span></div>' +
+        '<div class="funnel-bar-wrap"><div class="funnel-bar" style="width:' + widthPct + '%">' + segs + '</div></div>';
+      if (i < rows.length - 1 && rows[i + 1].n_reached > 0) {
+        var med = r.median_days_to_next;
+        var arrow = med != null
+          ? '↓ ' + ANEF.t('delais.funnel_med_to_next', { dur: U.formatDuration(med) })
+          : '↓';
+        html += '<div class="funnel-arrow">' + arrow + '</div>';
+      }
+      html += '</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  // ─── Pass 9: Sankey ──────────────────────────────────────
+
+  function renderSankey() {
+    var canvas = document.getElementById('sankey-chart');
+    var noData = document.getElementById('sankey-no-data');
+    var foot = document.getElementById('sankey-footnote');
+    if (!canvas) return;
+
+    var grouped = state._filteredGrouped || state.grouped;
+    var result = M.transitionFlows ? M.transitionFlows(grouped, null, { minFlow: 5 }) : null;
+    if (!result || !result.flows.length) {
+      canvas.style.display = 'none';
+      noData.style.display = 'block';
+      if (foot) foot.style.display = 'none';
+      CH.destroy('sankeyFlows');
+      return;
+    }
+    canvas.style.display = 'block';
+    noData.style.display = 'none';
+    if (foot) {
+      foot.style.display = 'block';
+      foot.textContent = ANEF.t('delais.sankey_foot_n', {
+        shown: result.totalFlows,
+        hidden: result.hiddenFlows
+      });
+    }
+
+    // Sankey plugin requires window.Chart's sankey controller to be loaded.
+    if (!window.Chart || !window.Chart.controllers || !window.Chart.controllers.sankey) {
+      // CDN missing — quietly degrade by hiding section
+      canvas.style.display = 'none';
+      noData.style.display = 'block';
+      noData.textContent = ANEF.t('delais.sankey_lib_missing');
+      return;
+    }
+
+    var data = result.flows.map(function(f) { return { from: f.from, to: f.to, flow: f.flow }; });
+
+    var stepColorByLabel = {};
+    for (var i = 1; i <= 12; i++) stepColorByLabel['Étape ' + i] = C.STEP_COLORS[i] || '#64748b';
+    stepColorByLabel['Favorable'] = '#10b981';
+    stepColorByLabel['Refus'] = '#ef4444';
+
+    var config = {
+      type: 'sankey',
+      data: {
+        datasets: [{
+          data: data,
+          colorFrom: function(c) { return stepColorByLabel[c.dataset.data[c.dataIndex].from] || '#64748b'; },
+          colorTo: function(c) { return stepColorByLabel[c.dataset.data[c.dataIndex].to] || '#64748b'; },
+          colorMode: 'gradient',
+          borderWidth: 0,
+          alpha: 0.5,
+          size: 'max'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(item) {
+                var d = item.dataset.data[item.dataIndex];
+                return d.from + ' → ' + d.to + ' : ' + d.flow.toLocaleString('fr-FR');
+              }
+            }
+          }
+        }
+      }
+    };
+
+    CH.create('sankeyFlows', 'sankey-chart', config);
+  }
+
+  // ─── Pass 9: Per-étape outcomes ──────────────────────────
+
+  function initHorizonToggle() {
+    var btns = document.querySelectorAll('.horizon-btn[data-horizon]');
+    btns.forEach(function(b) {
+      b.addEventListener('click', function() {
+        var h = parseInt(b.getAttribute('data-horizon'), 10);
+        if (h && h !== state.horizonMonths) {
+          state.horizonMonths = h;
+          btns.forEach(function(x) { x.classList.remove('is-active'); });
+          b.classList.add('is-active');
+          renderPerEtapeOutcomes();
+        }
+      });
+    });
+  }
+
+  function renderPerEtapeOutcomes() {
+    var container = document.getElementById('per-etape-container');
+    var noData = document.getElementById('per-etape-no-data');
+    if (!container) return;
+    var grouped = state._filteredGrouped || state.grouped;
+    var rows = M.perEtapeOutcomes ? M.perEtapeOutcomes(grouped, null) : null;
+    if (!rows || !rows.length || rows.every(function(r) { return r.n_reached === 0; })) {
+      container.innerHTML = '';
+      container.appendChild(noData);
+      noData.style.display = 'block';
+      return;
+    }
+    noData.style.display = 'none';
+
+    var H = state.horizonMonths;
+    var html = '';
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (r.n_reached === 0) continue;
+      if (!r.horizons || !r.horizons[H]) continue;
+      var h = r.horizons[H];
+      var fav = Math.max(0, h.favorable || 0);
+      var neg = Math.max(0, h.negative || 0);
+      var pend = Math.max(0, 100 - fav - neg);
+
+      var stepName = C.PHASE_NAMES[r.etape] || ANEF.t('delais.funnel_step', { n: r.etape });
+      var lowSample = r.n_reached < 20;
+      var rowCls = 'per-etape-row' + (lowSample ? ' is-low-sample' : '');
+
+      var segs = '';
+      if (fav > 0) segs += '<div class="per-etape-seg per-etape-seg-fav" style="flex-basis:' + fav + '%" title="' + ANEF.t('delais.peo_tip_fav', { pct: fav.toFixed(1).replace('.', ',') }) + '">' + (fav > 12 ? fav.toFixed(0) + '%' : '') + '</div>';
+      if (pend > 0) segs += '<div class="per-etape-seg per-etape-seg-pending" style="flex-basis:' + pend + '%" title="' + ANEF.t('delais.peo_tip_pending', { pct: pend.toFixed(1).replace('.', ',') }) + '">' + (pend > 12 ? pend.toFixed(0) + '%' : '') + '</div>';
+      if (neg > 0) segs += '<div class="per-etape-seg per-etape-seg-neg" style="flex-basis:' + neg + '%" title="' + ANEF.t('delais.peo_tip_neg', { pct: neg.toFixed(1).replace('.', ',') }) + '">' + (neg > 12 ? neg.toFixed(0) + '%' : '') + '</div>';
+
+      var label = r.etape + '. ' + U.escapeHtml(stepName);
+      var nLabel = ANEF.t('delais.peo_n_entered', { n: r.n_reached });
+      var lowBadge = lowSample ? ' <span class="low-sample-badge">' + ANEF.t('delais.peo_low_sample') + '</span>' : '';
+
+      var numerics =
+        '<span class="num-fav">' + fav.toFixed(0) + '%</span> · ' +
+        '<span class="num-pending">' + pend.toFixed(0) + '%</span> · ' +
+        '<span class="num-neg">' + neg.toFixed(0) + '%</span>';
+
+      html += '<div class="' + rowCls + '">' +
+        '<div class="per-etape-row-label">' + label + ' <span class="per-etape-n">(' + nLabel + ')</span>' + lowBadge + '</div>' +
+        '<div class="per-etape-bar">' + segs + '</div>' +
+        '<div class="per-etape-numerics">' + numerics + '</div>' +
+      '</div>';
+    }
+    container.innerHTML = html || ('<p class="no-data">' + ANEF.t('delais.peo_empty') + '</p>');
   }
 
   // ─── Estimator ───────────────────────────────────────────

@@ -69,6 +69,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.12.1/dist/chartjs-chart-sankey.umd.min.js"></script>
 </head>
 <body class="bg-bg font-sans text-text-main leading-relaxed min-h-screen">
 
@@ -89,6 +90,7 @@
       <a href="dossiers.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.dossiers">Dossiers</a>
       <a href="prefectures.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.prefectures">Préfectures</a>
       <a href="delais.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.delais">Délais</a>
+      <a href="mon-dossier.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.mondossier">Mon dossier</a>
       <a href="guide.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.guide">Guide</a>
       <a href="feedback.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.contact">Contact</a>
     </div>
@@ -108,6 +110,9 @@
       </a>
       <a href="delais.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
         <span class="text-base leading-none mb-0.5">&#x23F1;</span><span data-i18n="nav.delais">Délais</span>
+      </a>
+      <a href="mon-dossier.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
+        <span class="text-base leading-none mb-0.5">&#x1F4CB;</span><span data-i18n="nav.mondossier_short">Mon</span>
       </a>
       <a href="guide.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
         <span class="text-base leading-none mb-0.5">&#x1F4D6;</span><span data-i18n="nav.guide">Guide</span>
@@ -142,6 +147,81 @@
         <div id="filter-outcome-container"></div>
       </div>
       <span class="filter-count" id="filter-count"></span>
+    </div>
+
+    <!-- Pipeline funnel (Pass 9 Feature C) -->
+    <div class="section" id="funnel-section">
+      <h2 data-i18n="delais.funnel_title">Entonnoir du parcours</h2>
+      <p class="section-subtitle" data-i18n="delais.funnel_sub">Combien de dossiers atteignent chaque étape et que deviennent-ils ? Pour chaque étape, on distingue les dossiers qui ont avancé (vert), encore en attente (orange) et refusés (rouge).</p>
+      <div class="funnel-legend">
+        <span class="funnel-legend-item"><span class="funnel-legend-dot" style="background:#10b981"></span><span data-i18n="delais.funnel_lg_progressed">Avancés</span></span>
+        <span class="funnel-legend-item"><span class="funnel-legend-dot" style="background:#f59e0b"></span><span data-i18n="delais.funnel_lg_stuck">Bloqués</span></span>
+        <span class="funnel-legend-item"><span class="funnel-legend-dot" style="background:#ef4444"></span><span data-i18n="delais.funnel_lg_neg">Refusés</span></span>
+      </div>
+      <div id="funnel-container" class="funnel-container">
+        <p class="no-data" id="funnel-no-data" style="display:none" data-i18n="delais.funnel_empty">Pas assez de dossiers pour construire l'entonnoir.</p>
+      </div>
+    </div>
+
+    <!-- Sankey flow (Pass 9 Feature D) -->
+    <div class="section" id="sankey-section">
+      <h2 data-i18n="delais.sankey_title">Flux entre étapes</h2>
+      <p class="section-subtitle" data-i18n="delais.sankey_sub">Diagramme des transitions observées entre étapes. La largeur des flux reflète le nombre de dossiers passant d'une étape à l'autre. Les transitions arrière (retour à une étape antérieure) sont visibles.</p>
+      <div class="chart-container" id="sankey-container" style="min-height:520px">
+        <canvas id="sankey-chart"></canvas>
+        <p class="no-data" id="sankey-no-data" style="display:none" data-i18n="delais.sankey_empty">Pas assez de transitions observées.</p>
+      </div>
+      <p class="section-subtitle" id="sankey-footnote" style="font-size:0.78rem;color:var(--text-dim);margin-top:0.75rem" data-i18n="delais.sankey_foot">Transitions rares masquées pour la lisibilité.</p>
+    </div>
+
+    <!-- Competing-risks outcomes + cycle/ping-pong KPIs (fork additions) -->
+    <div class="section" id="outcomes-section">
+      <h2 data-i18n="delais.outcomes_title">Issues observées</h2>
+      <p class="section-subtitle" data-i18n-html="delais.outcomes_subtitle">Analyse de risques concurrents (Aalen-Johansen) — la simple médiane « cycle de naturalisation » présuppose que tous les dossiers finiront par aboutir. La réalité est plus contrastée : à chaque horizon, on distingue les trois issues possibles.</p>
+      <div class="table-container">
+        <table class="percentile-table" id="cr-table">
+          <thead>
+            <tr>
+              <th data-i18n="delais.cr_col_horizon">Horizon</th>
+              <th class="num" data-i18n="delais.cr_col_fav">% décret</th>
+              <th class="num" data-i18n="delais.cr_col_neg">% refus / RAPO</th>
+              <th class="num" data-i18n="delais.cr_col_pending">% en attente</th>
+            </tr>
+          </thead>
+          <tbody id="cr-tbody"></tbody>
+        </table>
+        <p class="section-subtitle" style="margin-top:0.75rem;font-size:0.78rem;color:var(--text-dim)" id="cr-footnote" data-i18n-html="delais.cr_footnote">Lecture : à 4 ans après dépôt, le pourcentage en attente reflète la « longue traîne » de dossiers que la moyenne classique masquait.</p>
+      </div>
+    </div>
+
+    <!-- Per-étape outcomes (Pass 9 Feature B) -->
+    <div class="section" id="per-etape-section">
+      <h2 data-i18n="delais.peo_title">Que devient un dossier à chaque étape ?</h2>
+      <p class="section-subtitle" data-i18n="delais.peo_sub">Parmi les dossiers entrés à cette étape, quelle part a obtenu un décret, essuyé un refus, ou est encore en attente, à l'horizon choisi ?</p>
+      <div class="horizon-toggle" role="group" aria-label="Horizon">
+        <button class="horizon-btn" data-horizon="6" data-i18n="delais.peo_horizon_6">+6 mois</button>
+        <button class="horizon-btn is-active" data-horizon="12" data-i18n="delais.peo_horizon_12">+1 an</button>
+        <button class="horizon-btn" data-horizon="24" data-i18n="delais.peo_horizon_24">+2 ans</button>
+      </div>
+      <div id="per-etape-container" class="per-etape-list">
+        <p class="no-data" id="per-etape-no-data" style="display:none" data-i18n="delais.peo_empty">Pas de données par étape pour ce filtre.</p>
+      </div>
+    </div>
+
+    <!-- Cycle + Ping-pong supporting KPIs (subordinate to the competing-risks panel above) -->
+    <div class="section" id="km-completion-section" style="padding:0.85rem 1rem">
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:0.5rem 1.5rem;justify-content:space-between">
+        <div>
+          <div style="font-size:0.78rem;color:rgb(var(--text-dim-rgb));text-transform:uppercase;letter-spacing:0.03em" data-i18n="delais.cycle_label">Cycle médian dépôt → décret (dossiers clos)</div>
+          <div style="font-size:1.6rem;font-weight:700;color:var(--primary-light)" id="km-completion-value">—</div>
+          <div style="font-size:0.78rem;color:rgb(var(--text-dim-rgb))" id="km-completion-note">—</div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:rgb(var(--text-dim-rgb));text-transform:uppercase;letter-spacing:0.03em" data-i18n="delais.pingpong_label">Dossiers avec ping-pong</div>
+          <div style="font-size:1.6rem;font-weight:700;color:var(--orange)" id="pingpong-value">—</div>
+          <div style="font-size:0.78rem;color:rgb(var(--text-dim-rgb))" id="pingpong-note" data-i18n="delais.pingpong_sub">au moins un retour au même statut interne</div>
+        </div>
+      </div>
     </div>
 
     <!-- Estimator -->
@@ -207,6 +287,25 @@
           </thead>
           <tbody id="percentile-tbody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- anef-statut fork: backward transitions panel -->
+    <div class="section" id="backward-section">
+      <h2 data-i18n="delais.backward_title">Transitions arrière observées</h2>
+      <p class="section-subtitle" data-i18n="delais.backward_subtitle">Dossiers qui ont reculé d'une étape — invisibles dans le compteur principal car la fonction <code>daysDiff</code> tronque à zéro tout intervalle négatif.</p>
+      <div class="table-container">
+        <table class="percentile-table">
+          <thead>
+            <tr>
+              <th data-i18n="delais.backward_col_from">Étape de départ</th>
+              <th data-i18n="delais.backward_col_to">Vers</th>
+              <th class="num" data-i18n="delais.backward_col_count">Occurrences</th>
+            </tr>
+          </thead>
+          <tbody id="backward-tbody"></tbody>
+        </table>
+        <p class="no-data" id="backward-empty" style="display:none" data-i18n="delais.backward_empty">Aucune transition arrière observée.</p>
       </div>
     </div>
 

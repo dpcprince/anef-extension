@@ -27,7 +27,10 @@
     hmSort: 'days-desc',
     distribPage: 1,
     distribPageSize: 10,
-    distribSort: 'total-desc'
+    distribSort: 'total-desc',
+    apprPage: 1,
+    apprPageSize: 10,
+    apprSort: 'pct-desc'
   };
 
   document.addEventListener('DOMContentLoaded', async function() {
@@ -56,6 +59,7 @@
       initFilters();
       initTableSort();
       initBarPagination();
+      initApprPagination();
       initHmPagination();
       initDistribPagination();
       renderAll();
@@ -79,10 +83,10 @@
     var availableList = Object.keys(statusSet);
 
     F.createPrefectureMultiSelect('filter-prefecture-container', prefList, state.filters.prefecture, function(v) {
-      state.filters.prefecture = v; state.tablePage = 1; state.barPage = 1; state.hmPage = 1; state.distribPage = 1; syncAndRender();
+      state.filters.prefecture = v; state.tablePage = 1; state.barPage = 1; state.apprPage = 1; state.hmPage = 1; state.distribPage = 1; syncAndRender();
     });
     F.createStatusFilter('filter-status-container', state.filters.statut, function(v) {
-      state.filters.statut = v; state.tablePage = 1; state.barPage = 1; state.hmPage = 1; state.distribPage = 1; syncAndRender();
+      state.filters.statut = v; state.tablePage = 1; state.barPage = 1; state.apprPage = 1; state.hmPage = 1; state.distribPage = 1; syncAndRender();
     }, { filterStatuses: availableList });
   }
 
@@ -103,7 +107,7 @@
     var sig = filterSig();
     if (state._derivedSig !== sig) {
       state._filtered = D.applyFilters(state.summaries, state.filters);
-      state._prefStats = D.computePrefectureStats(state._filtered);
+      state._prefStats = D.computePrefectureStats(state._filtered, state.grouped);
       state._derivedSig = sig;
     }
     return state._filtered;
@@ -125,6 +129,7 @@
 
     renderRankingTable(prefStats);
     renderBarChart(prefStats);
+    renderApprovalChart(prefStats);
     renderHeatmap(filtered, prefStats);
     renderDistribTable(prefStats, filtered);
   }
@@ -136,7 +141,7 @@
     var tbody = document.getElementById('ranking-tbody');
     if (!prefStats.length) {
       toolbar.style.display = 'none';
-      tbody.innerHTML = '<tr><td colspan="7" class="no-data">' + ANEF.t('prefectures.no_pref') + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="no-data">' + ANEF.t('prefectures.no_pref') + '</td></tr>';
       return;
     }
 
@@ -149,7 +154,12 @@
       if (typeof va === 'string') { va = va.toLowerCase(); vb = (vb || '').toLowerCase(); }
       if (va == null) va = -Infinity;
       if (vb == null) vb = -Infinity;
-      return dir === 'asc' ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+      var cmp = dir === 'asc' ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+      // Tie-break for approval_pct: n_decided desc (more confident first)
+      if (col === 'approval_pct' && va === vb) {
+        return (b.n_decided || 0) - (a.n_decided || 0);
+      }
+      return cmp;
     });
 
     // Pagination
@@ -183,12 +193,26 @@
       var barPct = maxAvg > 0 && p.avg_days ? Math.round(p.avg_days / maxAvg * 100) : 0;
       var barColor = p.avg_days && maxAvg ? (p.avg_days < maxAvg * 0.5 ? 'var(--green)' : p.avg_days < maxAvg * 0.75 ? 'var(--orange)' : 'var(--red)') : 'var(--border)';
 
+      // Approval cell \u2014 greyed + asterisk when n_decided < 10
+      var apprCell;
+      var nDec = p.n_decided || 0;
+      if (nDec === 0) {
+        apprCell = '<td class="num" style="color:var(--text-dim)" title="' + U.escapeHtml(ANEF.t('prefectures.appr_none')) + '">\u2014</td>';
+      } else if (nDec < 10) {
+        var tipLow = ANEF.t('prefectures.appr_low_tip', { n: nDec });
+        apprCell = '<td class="num thin-cohort-asterisk" style="color:var(--text-dim);opacity:0.65" title="' + U.escapeHtml(tipLow) + '">' + p.approval_pct + '%*</td>';
+      } else {
+        var tipOk = ANEF.t('prefectures.appr_cell_tip', { ok: p.approved || 0, n: nDec });
+        apprCell = '<td class="num" title="' + U.escapeHtml(tipOk) + '">' + p.approval_pct + '%</td>';
+      }
+
       html += '<tr>' +
         '<td>' + U.escapeHtml(p.prefecture) + '</td>' +
         '<td class="num">' + p.total + '</td>' +
         '<td class="num"><div style="display:flex;align-items:center;justify-content:flex-end;gap:0.5rem"><span>' + (p.avg_days != null ? p.avg_days + ' ' + ANEF.t('dur.day_short') : '\u2014') + '</span><div style="width:60px;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:' + barPct + '%;height:100%;background:' + barColor + ';border-radius:3px"></div></div></div></td>' +
         '<td class="num">' + (p.median_days != null ? p.median_days + ' ' + ANEF.t('dur.day_short') : '\u2014') + '</td>' +
         '<td class="num">' + p.avg_step + '/12</td>' +
+        apprCell +
         '<td class="num">' + p.favorable_pct + '%</td>' +
         '<td class="num">' + p.complement_pct + '%</td>' +
       '</tr>';
@@ -354,6 +378,135 @@
     });
     document.getElementById('bar-btn-next').addEventListener('click', function() {
       state.barPage++;
+      renderAll();
+    });
+  }
+
+  // ─── Approval Leaderboard Chart ──────────────────────────
+
+  function renderApprovalChart(prefStats) {
+    var toolbar = document.getElementById('appr-toolbar');
+    var canvas = document.getElementById('approval-bar-chart');
+    var noData = document.getElementById('appr-no-data');
+
+    // Keep only prefectures with at least 1 decided case; small-N stay but visually demoted
+    var withDec = prefStats.filter(function(p) { return (p.n_decided || 0) > 0; });
+    if (!withDec.length) {
+      toolbar.style.display = 'none';
+      canvas.style.display = 'none';
+      noData.style.display = 'block';
+      CH.destroy('approvalBar');
+      return;
+    }
+
+    canvas.style.display = 'block';
+    noData.style.display = 'none';
+
+    // Sort
+    switch (state.apprSort) {
+      case 'pct-asc':
+        withDec.sort(function(a, b) {
+          if (a.approval_pct !== b.approval_pct) return a.approval_pct - b.approval_pct;
+          return (b.n_decided || 0) - (a.n_decided || 0);
+        }); break;
+      case 'n-desc':
+        withDec.sort(function(a, b) { return (b.n_decided || 0) - (a.n_decided || 0); }); break;
+      case 'name-asc':
+        withDec.sort(function(a, b) { return a.prefecture.localeCompare(b.prefecture); }); break;
+      default: // pct-desc
+        withDec.sort(function(a, b) {
+          if (a.approval_pct !== b.approval_pct) return b.approval_pct - a.approval_pct;
+          return (b.n_decided || 0) - (a.n_decided || 0);
+        });
+    }
+
+    // Pagination
+    var total = withDec.length;
+    var ps = state.apprPageSize;
+    var totalPages = ps > 0 ? Math.max(1, Math.ceil(total / ps)) : 1;
+    state.apprPage = Math.min(state.apprPage, totalPages);
+    var pageData = ps > 0 ? withDec.slice((state.apprPage - 1) * ps, state.apprPage * ps) : withDec;
+
+    toolbar.style.display = 'flex';
+    document.getElementById('appr-count').textContent = ANEF.tn('prefectures.pref_count', total);
+    document.getElementById('appr-page-info').textContent = state.apprPage + '/' + totalPages;
+    document.getElementById('appr-btn-prev').disabled = state.apprPage <= 1;
+    document.getElementById('appr-btn-next').disabled = state.apprPage >= totalPages;
+
+    var isMobile = window.innerWidth < 768;
+
+    var labels = pageData.map(function(p) {
+      var n = p.prefecture;
+      if (isMobile && n.length > 20) {
+        n = n.replace(/^(Pr[ée]fecture|Sous-Pr[ée]fecture)\s+(de\s+la|de\s+l'|des|du|de)\s+/i, '');
+        if (!n) n = p.prefecture;
+      }
+      // Append " (N)" so the cohort size is visible
+      return n + ' (' + (p.n_decided || 0) + ')';
+    });
+    var values = pageData.map(function(p) { return p.approval_pct; });
+    var colors = pageData.map(function(p) {
+      var lowN = (p.n_decided || 0) < 10;
+      if (lowN) return '#94a3b8'; // grey for low-confidence
+      if (p.approval_pct >= 80) return '#10b981'; // green
+      if (p.approval_pct >= 60) return '#f59e0b'; // amber
+      return '#ef4444'; // red
+    });
+
+    var barHeight = isMobile ? 32 : 35;
+    var container = document.getElementById('appr-chart-container');
+    var totalH = Math.max(300, pageData.length * barHeight);
+    container.style.minHeight = totalH + 'px';
+
+    var config = CH.horizontalBarConfig(labels, values, colors, { suffix: '%' });
+    config.options.scales.x.min = 0;
+    config.options.scales.x.max = 100;
+    // Custom tooltip: show approved / decided and warn on low N
+    config.options.plugins.tooltip = {
+      callbacks: {
+        label: function(ctx) {
+          var p = pageData[ctx.dataIndex];
+          var n = p.n_decided || 0;
+          var ok = p.approved || 0;
+          var line = ANEF.t('prefectures.appr_tooltip', { pct: p.approval_pct, ok: ok, n: n });
+          if (n < 10) line += ' · ' + ANEF.t('prefectures.appr_low_warn');
+          return line;
+        }
+      }
+    };
+
+    if (isMobile) {
+      config.options.scales.y.ticks.font = { size: 10 };
+      config.options.layout = { padding: { right: 40 } };
+      config.options.plugins.datalabels = {
+        color: '#e2e8f0',
+        font: { size: 9, weight: 'bold' },
+        anchor: 'end',
+        align: 'right',
+        formatter: function(v) { return v + '%'; }
+      };
+      config.plugins = [ChartDataLabels];
+    }
+
+    CH.create('approvalBar', 'approval-bar-chart', config);
+  }
+
+  function initApprPagination() {
+    document.getElementById('appr-sort').addEventListener('change', function(e) {
+      state.apprSort = e.target.value;
+      state.apprPage = 1;
+      renderAll();
+    });
+    document.getElementById('appr-page-size').addEventListener('change', function(e) {
+      state.apprPageSize = parseInt(e.target.value, 10);
+      state.apprPage = 1;
+      renderAll();
+    });
+    document.getElementById('appr-btn-prev').addEventListener('click', function() {
+      if (state.apprPage > 1) { state.apprPage--; renderAll(); }
+    });
+    document.getElementById('appr-btn-next').addEventListener('click', function() {
+      state.apprPage++;
       renderAll();
     });
   }

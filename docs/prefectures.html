@@ -89,6 +89,7 @@
       <a href="dossiers.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.dossiers">Dossiers</a>
       <a href="prefectures.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.prefectures">Préfectures</a>
       <a href="delais.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.delais">Délais</a>
+      <a href="mon-dossier.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.mondossier">Mon dossier</a>
       <a href="guide.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.guide">Guide</a>
       <a href="feedback.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.contact">Contact</a>
     </div>
@@ -108,6 +109,9 @@
       </a>
       <a href="delais.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
         <span class="text-base leading-none mb-0.5">&#x23F1;</span><span data-i18n="nav.delais">Délais</span>
+      </a>
+      <a href="mon-dossier.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
+        <span class="text-base leading-none mb-0.5">&#x1F4CB;</span><span data-i18n="nav.mondossier_short">Mon</span>
       </a>
       <a href="guide.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
         <span class="text-base leading-none mb-0.5">&#x1F4D6;</span><span data-i18n="nav.guide">Guide</span>
@@ -155,6 +159,7 @@
             <option value="median_days-asc" data-i18n="prefectures.sort_median_asc">Durée typique &uarr;</option>
             <option value="prefecture-asc" data-i18n="prefectures.sort_name_asc">Nom A-Z</option>
             <option value="prefecture-desc" data-i18n="prefectures.sort_name_desc">Nom Z-A</option>
+            <option value="approval_pct-desc" data-i18n="prefectures.sort_approval_desc">Taux d'approbation &darr;</option>
             <option value="favorable_pct-desc" data-i18n="prefectures.sort_favorable_desc">Taux favorable &darr;</option>
           </select>
           <select id="ranking-page-size" class="page-size-select" title="Par page" data-i18n-attr="title:prefectures.per_page_title">
@@ -176,10 +181,11 @@
             <tr>
               <th class="sortable" data-col="prefecture" data-i18n="prefectures.col_prefecture">Préfecture</th>
               <th class="sortable" data-col="total" data-i18n="prefectures.col_total">Dossiers</th>
-              <th class="sortable" data-col="avg_days" data-i18n="prefectures.col_avg">Durée moy.</th>
-              <th class="sortable" data-col="median_days" title="Valeur médiane : 50% des dossiers font moins" data-i18n="prefectures.col_median" data-i18n-attr="title:prefectures.col_median_tip">Durée typique</th>
+              <th class="sortable" data-col="avg_days" title="Calculé sur les seuls dossiers en cours — biais de cohorte. Voir l'analyse des risques concurrents sur la page Délais." data-i18n="prefectures.col_avg" data-i18n-attr="title:prefectures.col_avg_tip">Âge moyen</th>
+              <th class="sortable" data-col="median_days" title="Calculé sur les seuls dossiers en cours — biais de cohorte. Voir l'analyse des risques concurrents sur la page Délais." data-i18n="prefectures.col_median" data-i18n-attr="title:prefectures.col_median_tip">Âge médian</th>
               <th class="sortable" data-col="avg_step" data-i18n="prefectures.col_avg_step">Étape moy.</th>
-              <th class="sortable" data-col="favorable_pct" data-i18n="prefectures.col_favorable">Taux favorable</th>
+              <th class="sortable" data-col="approval_pct" title="Décrets publiés ÷ (décrets publiés + refus terminaux). Exclut les dossiers encore ouverts. Grisé si moins de 10 dossiers décidés." data-i18n="prefectures.col_approval" data-i18n-attr="title:prefectures.col_approval_tip">Taux d'approbation</th>
+              <th class="sortable" data-col="favorable_pct" title="Part actuellement à un statut favorable. Instantané — un dossier favorable il y a un an reste comptabilisé." data-i18n="prefectures.col_favorable" data-i18n-attr="title:prefectures.col_favorable_tip">% au statut favorable</th>
               <th class="sortable" data-col="complement_pct" data-i18n="prefectures.col_complement">Compléments</th>
             </tr>
           </thead>
@@ -214,6 +220,37 @@
       <div class="chart-container chart-container--tall" id="bar-chart-container" style="min-height:400px">
         <canvas id="prefecture-bar-chart"></canvas>
         <p class="no-data" id="bar-no-data" style="display:none" data-i18n="prefectures.no_data">Pas de données</p>
+      </div>
+    </div>
+
+    <!-- Approval leaderboard -->
+    <div class="section">
+      <h2 data-i18n="prefectures.approval_title">Classement par taux d'approbation</h2>
+      <p class="section-subtitle" data-i18n="prefectures.approval_sub">Pourcentage de dossiers favorables parmi ceux ayant abouti à une décision (décret ou refus). Exclut les dossiers encore ouverts.</p>
+      <div class="dossier-toolbar" id="appr-toolbar" style="display:none">
+        <span class="dossier-count" id="appr-count">&mdash;</span>
+        <div class="toolbar-controls">
+          <select id="appr-sort" class="page-size-select" title="Trier" data-i18n-attr="title:prefectures.sort">
+            <option value="pct-desc" data-i18n="prefectures.sort_approval_desc">Taux d'approbation &darr;</option>
+            <option value="pct-asc" data-i18n="prefectures.sort_approval_asc">Taux d'approbation &uarr;</option>
+            <option value="n-desc" data-i18n="prefectures.sort_decided_desc">Décidés &darr;</option>
+            <option value="name-asc" data-i18n="prefectures.sort_name_asc">Nom A-Z</option>
+          </select>
+          <select id="appr-page-size" class="page-size-select" title="Par page" data-i18n-attr="title:prefectures.per_page_title">
+            <option value="10" selected data-i18n="prefectures.per_page_10">10 par page</option>
+            <option value="20" data-i18n="prefectures.per_page_20">20 par page</option>
+            <option value="0" data-i18n="prefectures.per_page_all">Tout</option>
+          </select>
+        </div>
+        <div class="pagination">
+          <button id="appr-btn-prev" class="btn-page" disabled>&larr;</button>
+          <span id="appr-page-info" class="page-info">1/1</span>
+          <button id="appr-btn-next" class="btn-page">&rarr;</button>
+        </div>
+      </div>
+      <div class="chart-container chart-container--tall" id="appr-chart-container" style="min-height:400px">
+        <canvas id="approval-bar-chart"></canvas>
+        <p class="no-data" id="appr-no-data" style="display:none" data-i18n="prefectures.approval_empty">Pas assez de dossiers décidés pour classer les préfectures.</p>
       </div>
     </div>
 

@@ -8,6 +8,7 @@
   var U = ANEF.utils;
   var D = ANEF.data;
   var F = ANEF.filters;
+  var M = ANEF.math;
   var _timelineWrapper = null;
   var CH = ANEF.charts;
 
@@ -210,7 +211,7 @@
       loading.style.display = 'none';
       main.style.display = 'block';
 
-      renderKPIs(summaries, snapshots);
+      renderKPIs(summaries, snapshots, grouped);
       renderTimeline(summaries);
 
       var transitions = buildTransitions(snapshots, grouped);
@@ -227,7 +228,7 @@
     }
   });
 
-  function renderKPIs(summaries, snapshots) {
+  function renderKPIs(summaries, snapshots, grouped) {
     // Dossiers suivis
     U.setText('kpi-dossiers', summaries.length);
     var prefSet = {};
@@ -237,16 +238,38 @@
     var nbPref = Object.keys(prefSet).length;
     U.setText('kpi-dossiers-sub', ANEF.tn('kpi.dossiers_sub_count', nbPref));
 
-    // Duree moyenne depuis le depot (dossiers en cours uniquement)
-    var activeDossiers = summaries.filter(function(s) { return s.daysSinceDeposit != null && !s.isFinished; });
-    if (activeDossiers.length > 0) {
-      var totalDays = 0;
-      for (var i = 0; i < activeDossiers.length; i++) {
-        totalDays += activeDossiers[i].daysSinceDeposit;
+    // anef-statut fork: the prior KM-49 headline was too generous (treats all
+    // pending dossiers as future decrees). Now we show the cycle-time on
+    // *closed* dossiers as the relatable headline, with a sub-line carrying
+    // the harsh competing-risks reality (Aalen-Johansen at 4 years).
+    var favClosed = [];
+    summaries.forEach(function(s) {
+      if (C.isPositiveStatus(s.statut) && s.daysSinceDeposit != null) {
+        favClosed.push(s.daysSinceDeposit);
       }
-      var avgDays = Math.round(totalDays / activeDossiers.length);
-      U.setText('kpi-avg-days', U.formatDuration(avgDays));
-      U.setText('kpi-avg-sub', ANEF.tn('kpi.avg_sub_count', activeDossiers.length));
+    });
+    favClosed.sort(function(a, b) { return a - b; });
+    if (favClosed.length > 0) {
+      var medianCycle = favClosed[Math.floor(favClosed.length / 2)];
+      U.setText('kpi-avg-days', U.formatDuration(medianCycle));
+    } else {
+      U.setText('kpi-avg-days', '—');
+    }
+    // Competing-risks subtitle: "À 4 ans : X % décret, Y % refus, Z % en attente"
+    if (M && M.aalenJohansenCompetingRisks) {
+      var cr = M.aalenJohansenCompetingRisks(summaries, grouped);
+      if (cr && cr.horizons[48]) {
+        var h = cr.horizons[48];
+        U.setText('kpi-avg-sub',
+          (ANEF.t('kpi.cr_sub_48mo') || 'À 4 ans : {fav}% décret, {neg}% refus, {pend}% en attente')
+            .replace('{fav}', h.favorable.toFixed(0))
+            .replace('{neg}', h.negative.toFixed(0))
+            .replace('{pend}', h.pending.toFixed(0)));
+      } else {
+        U.setText('kpi-avg-sub', ANEF.t('kpi.cycle_sub_count')
+          ? (ANEF.t('kpi.cycle_sub_count').replace('{n}', favClosed.length.toLocaleString('fr-FR')))
+          : favClosed.length + ' décrets observés');
+      }
     }
 
     // Data freshness indicator

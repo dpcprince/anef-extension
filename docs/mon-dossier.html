@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <title data-i18n="meta.mondossier.title">ANEF Stats — Mon dossier : où je me situe dans la file</title>
+  <meta name="description" data-i18n-attr="content:meta.mondossier.desc" content="Compare ton dossier de naturalisation aux autres dossiers de la même préfecture ou au niveau national. Probabilités d'issue à 6/12/24 mois, contexte préfecture, signal statistique de blocage.">
+  <link rel="canonical" href="https://letranger-dev.github.io/anef-extension/mon-dossier.html">
+  <link rel="alternate" hreflang="fr" href="https://letranger-dev.github.io/anef-extension/mon-dossier.html?lang=fr">
+  <link rel="alternate" hreflang="en" href="https://letranger-dev.github.io/anef-extension/mon-dossier.html?lang=en">
+  <link rel="alternate" hreflang="es" href="https://letranger-dev.github.io/anef-extension/mon-dossier.html?lang=es">
+  <link rel="alternate" hreflang="ar" href="https://letranger-dev.github.io/anef-extension/mon-dossier.html?lang=ar">
+  <link rel="alternate" hreflang="zh" href="https://letranger-dev.github.io/anef-extension/mon-dossier.html?lang=zh">
+  <link rel="alternate" hreflang="x-default" href="https://letranger-dev.github.io/anef-extension/mon-dossier.html">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('anef-theme');
+        var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        var theme = saved || (prefersLight ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+    (function () {
+      try {
+        var SUP = ['fr', 'en', 'es', 'ar', 'zh'];
+        var p = new URLSearchParams(location.search).get('lang');
+        if (p && SUP.indexOf(p) !== -1) { try { localStorage.setItem('anef-lang', p); } catch(e){} }
+        var saved = localStorage.getItem('anef-lang');
+        var nav = (navigator.language || '').slice(0, 2).toLowerCase();
+        var lang = (p && SUP.indexOf(p) !== -1) ? p
+                 : (saved && SUP.indexOf(saved) !== -1) ? saved
+                 : (SUP.indexOf(nav) !== -1 ? nav : 'fr');
+        document.documentElement.setAttribute('lang', lang);
+        document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="shared/common.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: 'rgb(var(--bg-rgb) / <alpha-value>)',
+            'bg-card': 'rgb(var(--bg-card-rgb) / <alpha-value>)',
+            'bg-hover': 'rgb(var(--bg-hover-rgb) / <alpha-value>)',
+            border: 'rgb(var(--border-rgb) / <alpha-value>)',
+            'text-main': 'rgb(var(--text-main-rgb) / <alpha-value>)',
+            'text-muted': 'rgb(var(--text-muted-rgb) / <alpha-value>)',
+            'text-dim': 'rgb(var(--text-dim-rgb) / <alpha-value>)',
+            primary: '#3b82f6',
+            'primary-light': '#60a5fa',
+            success: '#10b981',
+            warning: '#f59e0b',
+            violet: '#8b5cf6',
+            danger: '#ef4444',
+          },
+          maxWidth: { container: '1200px' },
+          borderRadius: { card: '12px' },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-bg font-sans text-text-main leading-relaxed min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-bg-card border-b-[3px]" style="border-image:linear-gradient(to right,#002395,#fff,#ED2939) 1">
+    <div class="max-w-container mx-auto px-4 py-2.5 md:py-3 flex items-center justify-center gap-2.5 flex-wrap">
+      <h1 class="text-[0.95rem] md:text-lg font-bold whitespace-nowrap">ANEF Status Tracker</h1>
+      <span class="text-text-dim/40 hidden sm:inline select-none">|</span>
+      <span class="text-text-muted text-xs md:text-sm" data-i18n="header.subtitle">Statistiques communautaires</span>
+      <span class="bg-primary/15 text-primary-light text-[0.65rem] px-2 py-0.5 rounded-full font-medium" data-i18n="header.badge">Données anonymes</span>
+    </div>
+  </header>
+
+  <!-- Desktop Nav -->
+  <nav class="hidden md:block sticky top-0 z-50 bg-bg-card/95 backdrop-blur-md border-b border-border">
+    <div class="max-w-container mx-auto px-6 flex overflow-x-auto">
+      <a href="index.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.accueil">Accueil</a>
+      <a href="dossiers.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.dossiers">Dossiers</a>
+      <a href="prefectures.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.prefectures">Préfectures</a>
+      <a href="delais.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.delais">Délais</a>
+      <a href="mon-dossier.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.mondossier">Mon dossier</a>
+      <a href="guide.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.guide">Guide</a>
+      <a href="feedback.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.contact">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Mobile Nav -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-[999] bg-bg-card border-t border-border" style="padding-bottom:env(safe-area-inset-bottom,0)">
+    <div class="mobile-nav-bar flex justify-around items-stretch">
+      <a href="index.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
+        <span class="text-base leading-none mb-0.5">&#x1F3E0;</span><span data-i18n="nav.accueil">Accueil</span>
+      </a>
+      <a href="dossiers.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
+        <span class="text-base leading-none mb-0.5">&#x1F4C1;</span><span data-i18n="nav.dossiers">Dossiers</span>
+      </a>
+      <a href="prefectures.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
+        <span class="text-base leading-none mb-0.5">&#x1F4CD;</span><span data-i18n="nav.prefectures_short">Préf.</span>
+      </a>
+      <a href="delais.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
+        <span class="text-base leading-none mb-0.5">&#x23F1;</span><span data-i18n="nav.delais">Délais</span>
+      </a>
+      <a href="mon-dossier.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
+        <span class="text-base leading-none mb-0.5">&#x1F4CB;</span><span data-i18n="nav.mondossier_short">Mon</span>
+      </a>
+      <a href="guide.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
+        <span class="text-base leading-none mb-0.5">&#x1F4D6;</span><span data-i18n="nav.guide">Guide</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Loading -->
+  <div id="loading" class="text-center py-12 text-text-muted">
+    <div class="inline-block w-9 h-9 border-[3px] border-border border-t-primary rounded-full animate-spin mb-4"></div>
+    <p class="text-base" data-i18n="mondossier.loading">Chargement des données…</p>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main-content" class="max-w-container mx-auto px-4 md:px-6 py-4 md:py-6 pb-20 md:pb-6" style="display:none">
+
+    <!-- From-extension badge -->
+    <div id="from-extension-banner" class="md-from-ext hidden">
+      ✓ <span data-i18n="mondossier.from_ext">Données pré-remplies depuis l'extension. Modifie-les librement.</span>
+    </div>
+
+    <!-- Inputs section -->
+    <div class="section" id="inputs-section">
+      <h2 data-i18n="mondossier.inputs_title">Mon dossier</h2>
+      <p class="section-subtitle" data-i18n="mondossier.inputs_subtitle">Renseigne ta préfecture, ton statut et ta date de dépôt. Tout se calcule localement dans ton navigateur.</p>
+      <div class="estimator">
+        <div class="estimator-form" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+          <div class="estimator-field">
+            <label data-i18n="mondossier.field_prefecture">Préfecture</label>
+            <div id="md-prefecture-container"></div>
+          </div>
+          <div class="estimator-field">
+            <label data-i18n="mondossier.field_statut">Statut interne ANEF</label>
+            <div id="md-statut-container"></div>
+          </div>
+          <div class="estimator-field">
+            <label data-i18n="mondossier.field_depot">Date de dépôt</label>
+            <input type="date" id="md-depot" class="md-date-input" />
+          </div>
+          <div class="estimator-field">
+            <label>
+              <span data-i18n="mondossier.field_entree_etape">Entrée à l'étape</span>
+              <span class="text-text-dim text-xs" data-i18n="mondossier.optional">(optionnel)</span>
+            </label>
+            <input type="date" id="md-entree-etape" class="md-date-input" />
+            <small class="text-text-dim text-xs mt-1" data-i18n="mondossier.entree_etape_hint">Pour l'étape 8 (Décision préfecture), c'est généralement la date de l'entretien d'assimilation. Permet une comparaison juste, qui résiste au ping-pong entre sous-statuts.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state — visible by default; the renderer hides it once inputs are complete -->
+    <div id="empty-state" class="no-data">
+      <p data-i18n="mondossier.empty_state">Saisis au moins la préfecture, le statut et la date de dépôt pour voir où tu te situes.</p>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="hidden">
+
+      <!-- Ton dossier summary (6 tiles) -->
+      <div class="section">
+        <h2 data-i18n="mondossier.summary_title">Ton dossier</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.tile_depot">En attente depuis</div>
+            <div class="kpi-value" id="md-out-depot">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.tile_etape">Étape</div>
+            <div class="kpi-value" id="md-out-etape">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.tile_statut">Statut</div>
+            <div class="kpi-value kpi-value--mono" id="md-out-statut">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.tile_at_etape">Temps à cette étape</div>
+            <div class="kpi-value" id="md-out-at-etape">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.tile_position">Position dans le parcours</div>
+            <div class="kpi-value" id="md-out-position">—</div>
+            <div class="text-text-dim text-xs" id="md-out-position-sub"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.tile_since_change">Depuis le dernier changement</div>
+            <div class="kpi-value" id="md-out-since-change">—</div>
+            <div class="text-text-dim text-xs" id="md-out-since-change-sub"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Et après cette étape ? (next-step distribution) -->
+      <div class="section" id="next-step-section">
+        <h2 data-i18n="mondossier.next_title">Et après cette étape ?</h2>
+        <p class="section-subtitle" id="md-next-subtitle" data-i18n="mondossier.next_subtitle">Pour les dossiers déjà passés par ton étape, voici vers quoi ils ont basculé ensuite.</p>
+        <div id="md-next-container">
+          <p class="no-data" id="md-next-no-data" style="display:none" data-i18n="mondossier.next_empty">Pas assez de données pour estimer la prochaine transition.</p>
+        </div>
+      </div>
+
+      <!-- "Statistiquement bloqué" warning chip (shown when conditional outcomes are very low) -->
+      <div class="section hidden" id="md-stuck-card">
+        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;background:rgba(245,158,11,0.1);border-left:4px solid var(--warning,#f59e0b);border-radius:6px">
+          <span style="font-size:1.4rem">⚠️</span>
+          <p style="margin:0;font-size:0.92rem" id="md-stuck-msg">—</p>
+        </div>
+      </div>
+
+      <!-- Mode banner — informs the user when the cohort fallback (entry-age)
+           is being used instead of the more precise landmark mode -->
+      <div class="section hidden" id="md-mode-banner">
+        <div style="display:flex;align-items:flex-start;gap:0.5rem;padding:0.65rem 1rem;background:rgba(59,130,246,0.08);border-left:3px solid var(--primary,#3b82f6);border-radius:6px">
+          <span style="font-size:1.1rem">ℹ️</span>
+          <p style="margin:0;font-size:0.85rem;color:rgb(var(--text-muted-rgb))" id="md-mode-banner-msg">—</p>
+        </div>
+      </div>
+
+      <!-- Outcome probabilities at horizons. Two sub-tables (prefecture +
+           national) are injected by mon-dossier.js into #md-outcomes-tables. -->
+      <div class="section" id="outcomes-section">
+        <h2 data-i18n="mondossier.outcomes_title">Que vont devenir les dossiers comme le mien ?</h2>
+        <p class="section-subtitle" id="md-outcomes-subtitle" data-i18n="mondossier.outcomes_subtitle">Sur les dossiers passés par cette étape dans une situation comparable (préfecture, âge), voici ce qu'ils sont devenus dans les mois qui ont suivi.</p>
+        <div id="md-outcomes-tables"></div>
+        <p class="md-stats-line" id="md-outcomes-footnote" style="margin-top:0.75rem"></p>
+      </div>
+
+      <!-- Préfecture context (expanded — 7 tiles) -->
+      <div class="section" id="pref-context-section">
+        <h2 id="md-pref-name" data-i18n="mondossier.pref_context_title">Préfecture</h2>
+        <p class="section-subtitle" data-i18n="mondossier.pref_context_subtitle">Le contexte global de ta préfecture.</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.pref_total">Dossiers suivis</div>
+            <div class="kpi-value" id="md-pref-total">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.pref_cycle">Cycle médian dépôt → décret</div>
+            <div class="kpi-value" id="md-pref-cycle">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.pref_open">% ouverts</div>
+            <div class="kpi-value" id="md-pref-open">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.pref_favorable">% décret publié</div>
+            <div class="kpi-value" id="md-pref-favorable">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.pref_approval">Taux d'approbation (sur décidés)</div>
+            <div class="kpi-value" id="md-pref-approval">—</div>
+            <div class="text-text-dim text-xs" id="md-pref-approval-sub"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.pref_speed_rank">Rang vitesse national</div>
+            <div class="kpi-value" id="md-pref-speed-rank">—</div>
+            <div class="text-text-dim text-xs" id="md-pref-speed-sub"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label" data-i18n="mondossier.pref_volume">Volume récent</div>
+            <div class="kpi-value" id="md-pref-volume">—</div>
+            <div class="text-text-dim text-xs" id="md-pref-volume-sub" data-i18n="mondossier.pref_volume_sub">90 derniers jours</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Derniers décrets publiés de ta préfecture -->
+      <div class="section" id="recent-decrees-section">
+        <h2 data-i18n="mondossier.recent_decrees_title">Derniers décrets de ta préfecture</h2>
+        <p class="section-subtitle" id="md-recent-subtitle" data-i18n="mondossier.recent_decrees_sub">Décrets de naturalisation observés récemment dans le panel pour ta préfecture.</p>
+        <div id="md-recent-list" class="recent-decret-list">
+          <p class="no-data" id="md-recent-empty" style="display:none" data-i18n="mondossier.recent_decrees_empty">Aucun décret publié dans le panel pour cette préfecture au cours des 90 derniers jours.</p>
+        </div>
+      </div>
+
+      <!-- Action card (référé carence eligibility) -->
+      <div class="section hidden" id="action-card">
+        <h2>⚖️ <span data-i18n="mondossier.action_title">Action possible</span></h2>
+        <p id="md-action-body" data-i18n="mondossier.action_body">Tu attends à cette étape depuis plus de 12 mois. La jurisprudence du Conseil d'État admet une présomption de carence administrative au-delà de ce seuil. Tu peux saisir le tribunal administratif en référé pour demander une instruction de ton dossier.</p>
+        <p class="text-text-dim text-xs mt-2" data-i18n="mondossier.action_disclaimer">Information indicative — la procédure dépend de circonstances précises ; consulte un avocat avant d'engager la démarche.</p>
+      </div>
+
+      <!-- Méthodologie -->
+      <div class="section" id="methodology-section">
+        <button type="button" class="method-link" id="md-method-open">
+          <span aria-hidden="true">ⓘ</span>
+          <span data-i18n="mondossier.method_link">Comment ces statistiques sont calculées</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Methodology modal -->
+    <div class="method-modal-overlay" id="md-method-modal">
+      <div class="method-modal" role="dialog" aria-labelledby="md-method-title">
+        <button class="method-modal-close" id="md-method-close" aria-label="Close">×</button>
+        <h3 id="md-method-title" data-i18n="mondossier.method_title">Comment lire ces statistiques</h3>
+        <p data-i18n="mondossier.method_intro">Toutes les analyses tournent dans ton navigateur, sur un panel anonymisé de dossiers partagés par les utilisateurs de l'extension. Voici ce que chaque section veut dire.</p>
+
+        <h4 data-i18n="mondossier.method_cohort_h">Comment la cohorte de comparaison est construite</h4>
+        <p data-i18n="mondossier.method_cohort_p">Pour les probabilités d'issue, on prend tous les dossiers du panel qui sont passés par ton étape, puis on regarde — parmi ceux encore à la même position que toi à ce moment du parcours — combien ont obtenu un décret, un refus, ou sont restés en attente dans les mois qui suivent.</p>
+
+        <h4 data-i18n="mondossier.method_cond_h">Lecture conditionnelle</h4>
+        <p data-i18n="mondossier.method_cond_p">Les pourcentages s'appliquent aux dossiers comparables au tien à un moment donné — pas à l'ensemble des dossiers passés un jour par cette étape. Si tu attends depuis longtemps, les chiffres sont calculés sur les dossiers qui ont eux aussi attendu longtemps.</p>
+
+        <h4 data-i18n="mondossier.method_pref_h">Classement de ta préfecture</h4>
+        <p data-i18n="mondossier.method_pref_p">Le taux d'approbation compare les décrets publiés aux refus terminaux, en excluant les dossiers encore ouverts. Le rang vitesse trie les préfectures par cycle médian dépôt → décret. Les décrets récents sont ceux observés dans le panel sur les 90 derniers jours.</p>
+
+        <h4 data-i18n="mondossier.method_limits_h">Limites</h4>
+        <p data-i18n="mondossier.method_limits_p">Le panel n'est pas exhaustif et peut être biaisé en faveur des utilisateurs d'extension. Les estimations affichent un avertissement si l'échantillon est trop faible. Aucune statistique ne remplace un avis juridique.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center py-6 md:py-8 text-text-dim text-sm pb-20 md:pb-8">
+    <p><a href="https://github.com/Letranger-dev/anef-extension" class="text-primary-light hover:underline">ANEF Status Tracker</a> &mdash; <span data-i18n="footer.tagline">Extension Chrome pour suivre votre naturalisation</span></p>
+    <p data-i18n="footer.collected">Données collectées anonymement par les utilisateurs de l'extension</p>
+  </footer>
+
+  <!-- Page-specific styles moved to shared/common.css (Mon dossier section). -->
+
+  <!-- i18n -->
+  <script src="shared/i18n/i18n.js"></script>
+  <script src="shared/i18n/fr.js"></script>
+  <script src="shared/i18n/en.js"></script>
+  <script src="shared/i18n/es.js"></script>
+  <script src="shared/i18n/ar.js"></script>
+  <script src="shared/i18n/zh.js"></script>
+  <script src="shared/constants.js"></script>
+  <script src="shared/utils.js"></script>
+  <script src="shared/stats-math.js"></script>
+  <script src="config.local.js" onerror="/* not in local dev */"></script>
+  <script src="shared/data.js"></script>
+  <script src="shared/searchable-select.js"></script>
+  <script src="shared/nav.js"></script>
+  <script src="pages/mon-dossier.js"></script>
+</body>
+</html>

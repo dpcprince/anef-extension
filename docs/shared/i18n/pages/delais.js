@@ -54,7 +54,42 @@
     'delais.step9_affect': 'aff.',
     'delais.step9_control': 'ctrl',
     'delais.step9_transmit': 'trans.',
-    'delais.step9_verify': 'vérif.'
+    'delais.step9_verify': 'vérif.',
+
+    // Pass 9 — Funnel
+    'delais.funnel_title': 'Entonnoir du parcours',
+    'delais.funnel_sub': 'Combien de dossiers atteignent chaque étape et que deviennent-ils ? Pour chaque étape, on distingue les dossiers qui ont avancé (vert), encore en attente (orange) et refusés (rouge).',
+    'delais.funnel_empty': 'Pas assez de dossiers pour construire l\'entonnoir.',
+    'delais.funnel_lg_progressed': 'Avancés',
+    'delais.funnel_lg_stuck': 'Bloqués',
+    'delais.funnel_lg_neg': 'Refusés',
+    'delais.funnel_step': 'étape {n}',
+    'delais.funnel_n_reached': { one: '{n} dossier passé par cette étape', other: '{n} dossiers passés par cette étape' },
+    'delais.funnel_tip_progressed': '{n} dossiers ont avancé au-delà',
+    'delais.funnel_tip_stuck': '{n} dossiers encore à cette étape ou en arrière',
+    'delais.funnel_tip_neg': '{n} dossiers refusés ou en RAPO non récupéré',
+    'delais.funnel_med_to_next': 'médiane {dur} jusqu\'à l\'étape suivante',
+
+    // Pass 9 — Sankey
+    'delais.sankey_title': 'Flux entre étapes',
+    'delais.sankey_sub': 'Diagramme des transitions observées entre étapes. La largeur des flux reflète le nombre de dossiers passant d\'une étape à l\'autre. Les transitions arrière (retour à une étape antérieure) sont visibles.',
+    'delais.sankey_empty': 'Pas assez de transitions observées.',
+    'delais.sankey_foot': 'Transitions rares (moins de 5 dossiers) masquées pour la lisibilité.',
+    'delais.sankey_foot_n': '{shown} transitions affichées, {hidden} dossiers masqués (flux rares).',
+    'delais.sankey_lib_missing': 'Composant graphique indisponible (connexion ?).',
+
+    // Pass 9 — Per-étape outcomes
+    'delais.peo_title': 'Que devient un dossier à chaque étape ?',
+    'delais.peo_sub': 'Parmi les dossiers entrés à cette étape, quelle part a obtenu un décret, essuyé un refus, ou est encore en attente, à l\'horizon choisi ?',
+    'delais.peo_horizon_6': '+6 mois',
+    'delais.peo_horizon_12': '+1 an',
+    'delais.peo_horizon_24': '+2 ans',
+    'delais.peo_empty': 'Pas de données par étape pour ce filtre.',
+    'delais.peo_n_entered': { one: '{n} dossier entré', other: '{n} dossiers entrés' },
+    'delais.peo_low_sample': 'effectif faible',
+    'delais.peo_tip_fav': '{pct}% ont obtenu un décret',
+    'delais.peo_tip_pending': '{pct}% encore en attente',
+    'delais.peo_tip_neg': '{pct}% refus ou RAPO'
   });
 
   ANEF.i18n.register('en', {
@@ -101,7 +136,42 @@
     'delais.step9_affect': 'assign',
     'delais.step9_control': 'ctrl',
     'delais.step9_transmit': 'transm.',
-    'delais.step9_verify': 'verif.'
+    'delais.step9_verify': 'verif.',
+
+    // Pass 9 — Funnel
+    'delais.funnel_title': 'Pipeline funnel',
+    'delais.funnel_sub': 'How many cases reach each stage and what becomes of them? For each stage, we split into cases that progressed (green), still pending (orange) and refused (red).',
+    'delais.funnel_empty': 'Not enough cases to build the funnel.',
+    'delais.funnel_lg_progressed': 'Progressed',
+    'delais.funnel_lg_stuck': 'Stuck',
+    'delais.funnel_lg_neg': 'Refused',
+    'delais.funnel_step': 'stage {n}',
+    'delais.funnel_n_reached': { one: '{n} case reached this stage', other: '{n} cases reached this stage' },
+    'delais.funnel_tip_progressed': '{n} cases progressed beyond',
+    'delais.funnel_tip_stuck': '{n} cases still at this stage or back',
+    'delais.funnel_tip_neg': '{n} cases refused or RAPO not recovered',
+    'delais.funnel_med_to_next': 'median {dur} to the next stage',
+
+    // Pass 9 — Sankey
+    'delais.sankey_title': 'Flow between stages',
+    'delais.sankey_sub': 'Diagram of observed transitions between stages. Flow width reflects the number of cases moving from one stage to another. Backward transitions (returning to an earlier stage) are visible.',
+    'delais.sankey_empty': 'Not enough observed transitions.',
+    'delais.sankey_foot': 'Rare transitions (fewer than 5 cases) hidden for readability.',
+    'delais.sankey_foot_n': '{shown} transitions shown, {hidden} cases hidden (rare flows).',
+    'delais.sankey_lib_missing': 'Chart component unavailable (connection?).',
+
+    // Pass 9 — Per-étape outcomes
+    'delais.peo_title': 'What happens at each stage?',
+    'delais.peo_sub': 'Among cases that entered this stage, what share got a decree, faced a refusal, or are still waiting, at the chosen horizon?',
+    'delais.peo_horizon_6': '+6 months',
+    'delais.peo_horizon_12': '+1 year',
+    'delais.peo_horizon_24': '+2 years',
+    'delais.peo_empty': 'No stage-level data for this filter.',
+    'delais.peo_n_entered': { one: '{n} case entered', other: '{n} cases entered' },
+    'delais.peo_low_sample': 'small sample',
+    'delais.peo_tip_fav': '{pct}% got a decree',
+    'delais.peo_tip_pending': '{pct}% still waiting',
+    'delais.peo_tip_neg': '{pct}% refusal or RAPO'
   });
 
   ANEF.i18n.register('es', {
@@ -148,7 +218,42 @@
     'delais.step9_affect': 'asign.',
     'delais.step9_control': 'ctrl',
     'delais.step9_transmit': 'transm.',
-    'delais.step9_verify': 'verif.'
+    'delais.step9_verify': 'verif.',
+
+    // Pass 9 — Funnel
+    'delais.funnel_title': 'Embudo del recorrido',
+    'delais.funnel_sub': '¿Cuántos expedientes llegan a cada etapa y qué ocurre con ellos? Para cada etapa distinguimos los que avanzaron (verde), los aún pendientes (naranja) y los denegados (rojo).',
+    'delais.funnel_empty': 'No hay suficientes expedientes para construir el embudo.',
+    'delais.funnel_lg_progressed': 'Avanzados',
+    'delais.funnel_lg_stuck': 'Bloqueados',
+    'delais.funnel_lg_neg': 'Denegados',
+    'delais.funnel_step': 'etapa {n}',
+    'delais.funnel_n_reached': { one: '{n} expediente llegó a esta etapa', other: '{n} expedientes llegaron a esta etapa' },
+    'delais.funnel_tip_progressed': '{n} expedientes han avanzado más allá',
+    'delais.funnel_tip_stuck': '{n} expedientes aún en esta etapa o atrás',
+    'delais.funnel_tip_neg': '{n} expedientes denegados o en RAPO no recuperado',
+    'delais.funnel_med_to_next': 'mediana {dur} hasta la siguiente etapa',
+
+    // Pass 9 — Sankey
+    'delais.sankey_title': 'Flujo entre etapas',
+    'delais.sankey_sub': 'Diagrama de las transiciones observadas entre etapas. El ancho de los flujos refleja la cantidad de expedientes que pasan de una etapa a otra. Las transiciones hacia atrás son visibles.',
+    'delais.sankey_empty': 'No hay suficientes transiciones observadas.',
+    'delais.sankey_foot': 'Transiciones raras (menos de 5 expedientes) ocultas para mayor legibilidad.',
+    'delais.sankey_foot_n': '{shown} transiciones mostradas, {hidden} expedientes ocultos (flujos raros).',
+    'delais.sankey_lib_missing': 'Componente gráfico no disponible (¿conexión?).',
+
+    // Pass 9 — Per-étape outcomes
+    'delais.peo_title': '¿Qué ocurre con un expediente en cada etapa?',
+    'delais.peo_sub': 'Entre los expedientes que entraron a esta etapa, ¿qué proporción obtuvo un decreto, recibió una denegación o sigue esperando, al horizonte elegido?',
+    'delais.peo_horizon_6': '+6 meses',
+    'delais.peo_horizon_12': '+1 año',
+    'delais.peo_horizon_24': '+2 años',
+    'delais.peo_empty': 'No hay datos por etapa para este filtro.',
+    'delais.peo_n_entered': { one: '{n} expediente entró', other: '{n} expedientes entraron' },
+    'delais.peo_low_sample': 'muestra pequeña',
+    'delais.peo_tip_fav': '{pct}% obtuvieron un decreto',
+    'delais.peo_tip_pending': '{pct}% siguen esperando',
+    'delais.peo_tip_neg': '{pct}% denegación o RAPO'
   });
 
   ANEF.i18n.register('ar', {
@@ -195,7 +300,42 @@
     'delais.step9_affect': 'تخصيص',
     'delais.step9_control': 'مراقبة',
     'delais.step9_transmit': 'إحالة',
-    'delais.step9_verify': 'تحقّق'
+    'delais.step9_verify': 'تحقّق',
+
+    // Pass 9 — Funnel
+    'delais.funnel_title': 'قمع المسار',
+    'delais.funnel_sub': 'كم عدد الملفات التي تصل إلى كل مرحلة وما الذي يحدث لها؟ في كل مرحلة نميز بين الملفات التي تقدمت (أخضر)، التي لا تزال في الانتظار (برتقالي)، والمرفوضة (أحمر).',
+    'delais.funnel_empty': 'لا توجد ملفات كافية لبناء القمع.',
+    'delais.funnel_lg_progressed': 'تقدمت',
+    'delais.funnel_lg_stuck': 'متوقفة',
+    'delais.funnel_lg_neg': 'مرفوضة',
+    'delais.funnel_step': 'المرحلة {n}',
+    'delais.funnel_n_reached': { one: 'ملف واحد بلغ هذه المرحلة', two: 'ملفان بلغا هذه المرحلة', few: '{n} ملفات بلغت هذه المرحلة', many: '{n} ملفًا بلغت هذه المرحلة', other: '{n} ملف بلغ هذه المرحلة' },
+    'delais.funnel_tip_progressed': '{n} ملفًا تقدمت إلى ما بعد',
+    'delais.funnel_tip_stuck': '{n} ملفًا لا تزال في هذه المرحلة أو في الخلف',
+    'delais.funnel_tip_neg': '{n} ملفًا مرفوضة أو في RAPO لم تُستعد',
+    'delais.funnel_med_to_next': 'الوسيط {dur} حتى المرحلة التالية',
+
+    // Pass 9 — Sankey
+    'delais.sankey_title': 'التدفقات بين المراحل',
+    'delais.sankey_sub': 'رسم بياني للانتقالات الملاحظة بين المراحل. يعكس عرض التدفق عدد الملفات التي تنتقل من مرحلة إلى أخرى. الانتقالات إلى الخلف مرئية.',
+    'delais.sankey_empty': 'لا توجد انتقالات ملاحظة كافية.',
+    'delais.sankey_foot': 'الانتقالات النادرة (أقل من 5 ملفات) مخفية لسهولة القراءة.',
+    'delais.sankey_foot_n': '{shown} انتقالات معروضة، {hidden} ملفًا مخفية (تدفقات نادرة).',
+    'delais.sankey_lib_missing': 'مكوّن الرسم البياني غير متاح (الاتصال؟).',
+
+    // Pass 9 — Per-étape outcomes
+    'delais.peo_title': 'ما الذي يحدث لملف في كل مرحلة؟',
+    'delais.peo_sub': 'من بين الملفات التي دخلت هذه المرحلة، ما النسبة التي حصلت على مرسوم، أو واجهت رفضًا، أو لا تزال في الانتظار، في الأفق المختار؟',
+    'delais.peo_horizon_6': '+6 أشهر',
+    'delais.peo_horizon_12': '+1 سنة',
+    'delais.peo_horizon_24': '+2 سنوات',
+    'delais.peo_empty': 'لا توجد بيانات حسب المرحلة لهذا المرشّح.',
+    'delais.peo_n_entered': { one: 'ملف واحد دخل', two: 'ملفان دخلا', few: '{n} ملفات دخلت', many: '{n} ملفًا دخلت', other: '{n} ملف دخل' },
+    'delais.peo_low_sample': 'عينة صغيرة',
+    'delais.peo_tip_fav': '{pct}% حصلوا على مرسوم',
+    'delais.peo_tip_pending': '{pct}% لا يزالون في الانتظار',
+    'delais.peo_tip_neg': '{pct}% رفض أو RAPO'
   });
 
   ANEF.i18n.register('zh', {
@@ -242,6 +382,41 @@
     'delais.step9_affect': '分配',
     'delais.step9_control': '核查',
     'delais.step9_transmit': '转交',
-    'delais.step9_verify': '复核'
+    'delais.step9_verify': '复核',
+
+    // Pass 9 — Funnel
+    'delais.funnel_title': '流程漏斗',
+    'delais.funnel_sub': '有多少案卷进入每个阶段，它们的去向如何？每个阶段区分已推进（绿）、仍在等待（橙）和被拒绝（红）的案卷。',
+    'delais.funnel_empty': '案卷不足，无法构建漏斗。',
+    'delais.funnel_lg_progressed': '已推进',
+    'delais.funnel_lg_stuck': '滞留',
+    'delais.funnel_lg_neg': '被拒',
+    'delais.funnel_step': '阶段 {n}',
+    'delais.funnel_n_reached': { other: '{n} 个案卷到达本阶段' },
+    'delais.funnel_tip_progressed': '{n} 个案卷已推进至下一阶段',
+    'delais.funnel_tip_stuck': '{n} 个案卷仍在本阶段或更早阶段',
+    'delais.funnel_tip_neg': '{n} 个案卷被拒绝或 RAPO 未恢复',
+    'delais.funnel_med_to_next': '中位数 {dur} 进入下一阶段',
+
+    // Pass 9 — Sankey
+    'delais.sankey_title': '阶段之间的流向',
+    'delais.sankey_sub': '展示阶段之间观察到的转换。流的宽度反映从一个阶段到另一个阶段的案卷数。可见回退（返回较早阶段）的转换。',
+    'delais.sankey_empty': '观察到的转换不足。',
+    'delais.sankey_foot': '为清晰起见，隐藏了较少（少于 5 件）的转换。',
+    'delais.sankey_foot_n': '显示 {shown} 个转换，隐藏 {hidden} 件（罕见流向）。',
+    'delais.sankey_lib_missing': '图表组件不可用（连接？）。',
+
+    // Pass 9 — Per-étape outcomes
+    'delais.peo_title': '每个阶段案卷会变成什么样？',
+    'delais.peo_sub': '在进入本阶段的案卷中，所选时间范围内有多少获得了法令、被拒绝，或仍在等待？',
+    'delais.peo_horizon_6': '+6 个月',
+    'delais.peo_horizon_12': '+1 年',
+    'delais.peo_horizon_24': '+2 年',
+    'delais.peo_empty': '在此筛选条件下没有按阶段的数据。',
+    'delais.peo_n_entered': { other: '{n} 件案卷进入' },
+    'delais.peo_low_sample': '样本较少',
+    'delais.peo_tip_fav': '{pct}% 已获得法令',
+    'delais.peo_tip_pending': '{pct}% 仍在等待',
+    'delais.peo_tip_neg': '{pct}% 拒绝或 RAPO'
   });
 })();
