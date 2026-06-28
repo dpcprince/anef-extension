@@ -22,15 +22,17 @@
     }
   }
 
-  /** Inject Chrome Web Store link in desktop nav (right-aligned) */
+  /** Inject "Install the extension" link in desktop nav (right-aligned).
+   *  anef-statut fork: points at the guide page (which lays out both
+   *  options — sideload-from-Releases for the fork extension, and the
+   *  official Chrome Web Store version for data contribution) rather
+   *  than directly at one or the other. */
   function initCWSLink() {
     var desktopNav = document.querySelector('nav.hidden.md\\:block .max-w-container');
     if (!desktopNav) return;
 
     var link = document.createElement('a');
-    link.href = 'https://chromewebstore.google.com/detail/anef-status-tracker/icnpklneeaiffilemaflccdejefpehek';
-    link.target = '_blank';
-    link.rel = 'noopener';
+    link.href = 'guide.html#installation';
     link.className = 'cws-nav-link';
     link.innerHTML =
       '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'

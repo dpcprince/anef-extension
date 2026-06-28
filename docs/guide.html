@@ -137,55 +137,62 @@
     </div>
 
     <!-- Section 2: Installation -->
-    <div class="section">
+    <div class="section" id="installation">
       <h2 data-i18n="guide.s2.title">Comment installer l'extension ?</h2>
       <div class="bg-bg-card rounded-card border border-border p-5 md:p-8">
-        <!-- Chrome Web Store (recommandé) -->
-        <div class="p-5 bg-primary/10 border border-primary/30 rounded-lg mb-6">
-          <p class="text-text-main font-semibold mb-2" data-i18n="guide.s2.cws.title">Chrome Web Store (recommandé)</p>
-          <p class="text-sm text-text-muted mb-4" data-i18n="guide.s2.cws.desc">Installation en un clic, mises à jour automatiques.</p>
+
+        <!-- Option A: Official extension (recommended for daily use, contributes data) -->
+        <div class="p-5 bg-primary/10 border border-primary/30 rounded-lg mb-4">
+          <p class="text-text-main font-semibold mb-2" data-i18n="guide.s2.cws.title">Extension officielle (recommandée)</p>
+          <p class="text-sm text-text-muted mb-4" data-i18n="guide.s2.cws.desc">Installation en un clic depuis le Chrome Web Store, mises à jour automatiques. <strong class="text-text-main">Votre dossier alimente la cohorte communautaire</strong> dont les statistiques ci-dessus sont issues.</p>
           <div class="text-center">
             <a href="https://chromewebstore.google.com/detail/anef-status-tracker/icnpklneeaiffilemaflccdejefpehek" target="_blank" rel="noopener" class="inline-block bg-primary hover:bg-primary-light text-white px-6 py-2.5 rounded-lg font-semibold transition-colors" data-i18n="guide.s2.cws.btn">
               Installer depuis le Chrome Web Store
             </a>
           </div>
         </div>
-        <!-- Installation manuelle -->
-        <details class="group">
-          <summary class="cursor-pointer text-text-muted text-sm font-semibold hover:text-text-main transition-colors select-none" data-i18n="guide.s2.manual.summary">
-            Installation manuelle (avancé) ▸
-          </summary>
-          <ol class="space-y-4 text-text-muted mt-4">
-            <li class="flex gap-3">
-              <span class="flex-shrink-0 w-7 h-7 rounded-full bg-bg-hover text-text-muted text-sm flex items-center justify-center font-bold">1</span>
-              <div>
-                <p class="text-text-main font-semibold" data-i18n="guide.s2.manual.s1.title">Téléchargez l'extension</p>
-                <p class="text-sm mt-1" data-i18n-html="guide.s2.manual.s1.desc">Rendez-vous sur la <a href="https://github.com/Letranger-dev/anef-extension/releases" target="_blank" rel="noopener" class="text-primary-light hover:underline">page GitHub du projet</a> et téléchargez la dernière version (fichier ZIP).</p>
-              </div>
-            </li>
-            <li class="flex gap-3">
-              <span class="flex-shrink-0 w-7 h-7 rounded-full bg-bg-hover text-text-muted text-sm flex items-center justify-center font-bold">2</span>
-              <div>
-                <p class="text-text-main font-semibold" data-i18n="guide.s2.manual.s2.title">Ouvrez les extensions Chrome</p>
-                <p class="text-sm mt-1" data-i18n-html="guide.s2.manual.s2.desc">Dans Chrome, tapez <code class="bg-bg px-2 py-0.5 rounded text-primary-light text-xs">chrome://extensions</code> dans la barre d'adresse.</p>
-              </div>
-            </li>
-            <li class="flex gap-3">
-              <span class="flex-shrink-0 w-7 h-7 rounded-full bg-bg-hover text-text-muted text-sm flex items-center justify-center font-bold">3</span>
-              <div>
-                <p class="text-text-main font-semibold" data-i18n="guide.s2.manual.s3.title">Activez le mode développeur</p>
-                <p class="text-sm mt-1" data-i18n="guide.s2.manual.s3.desc">En haut à droite de la page, activez le bouton « Mode développeur ».</p>
-              </div>
-            </li>
-            <li class="flex gap-3">
-              <span class="flex-shrink-0 w-7 h-7 rounded-full bg-bg-hover text-text-muted text-sm flex items-center justify-center font-bold">4</span>
-              <div>
-                <p class="text-text-main font-semibold" data-i18n="guide.s2.manual.s4.title">Chargez l'extension</p>
-                <p class="text-sm mt-1" data-i18n="guide.s2.manual.s4.desc">Cliquez sur « Charger l'extension non empaquetée » et sélectionnez le dossier décompressé.</p>
-              </div>
-            </li>
-          </ol>
-        </details>
+
+        <!-- Option B: Fork preview (sideload) -->
+        <div class="p-5 bg-bg-hover/40 border border-border rounded-lg">
+          <p class="text-text-main font-semibold mb-2" data-i18n="guide.s2.fork.title">Fork preview (anef-statut)</p>
+          <p class="text-sm text-text-muted mb-4" data-i18n-html="guide.s2.fork.desc">Version expérimentale avec quelques améliorations du popup (card de comparaison inline, bouton « Mon dossier » pré-rempli). Ne contribue pas de données — vous pouvez l'installer en parallèle de l'extension officielle. Téléchargez le ZIP depuis la <a href="https://github.com/dpcprince/anef-extension/releases/latest" target="_blank" rel="noopener" class="text-primary-light hover:underline">page Releases du fork</a> puis suivez les étapes ci-dessous.</p>
+          <details class="group">
+            <summary class="cursor-pointer text-text-muted text-sm font-semibold hover:text-text-main transition-colors select-none" data-i18n="guide.s2.manual.summary">
+              Instructions de sideload ▸
+            </summary>
+            <ol class="space-y-4 text-text-muted mt-4">
+              <li class="flex gap-3">
+                <span class="flex-shrink-0 w-7 h-7 rounded-full bg-bg-hover text-text-muted text-sm flex items-center justify-center font-bold">1</span>
+                <div>
+                  <p class="text-text-main font-semibold" data-i18n="guide.s2.manual.s1.title">Téléchargez l'extension</p>
+                  <p class="text-sm mt-1" data-i18n-html="guide.s2.manual.s1.desc">Rendez-vous sur la <a href="https://github.com/dpcprince/anef-extension/releases/latest" target="_blank" rel="noopener" class="text-primary-light hover:underline">page Releases du fork</a> et téléchargez la dernière version (fichier <code class="bg-bg px-2 py-0.5 rounded text-primary-light text-xs">anef-statut-fork-vX.Y.Z.zip</code>). Décompressez dans un dossier <strong>permanent</strong> (si vous le supprimez, l'extension cesse de fonctionner).</p>
+                </div>
+              </li>
+              <li class="flex gap-3">
+                <span class="flex-shrink-0 w-7 h-7 rounded-full bg-bg-hover text-text-muted text-sm flex items-center justify-center font-bold">2</span>
+                <div>
+                  <p class="text-text-main font-semibold" data-i18n="guide.s2.manual.s2.title">Ouvrez les extensions Chrome</p>
+                  <p class="text-sm mt-1" data-i18n-html="guide.s2.manual.s2.desc">Dans Chrome, tapez <code class="bg-bg px-2 py-0.5 rounded text-primary-light text-xs">chrome://extensions</code> (ou <code class="bg-bg px-2 py-0.5 rounded text-primary-light text-xs">brave://extensions</code>) dans la barre d'adresse.</p>
+                </div>
+              </li>
+              <li class="flex gap-3">
+                <span class="flex-shrink-0 w-7 h-7 rounded-full bg-bg-hover text-text-muted text-sm flex items-center justify-center font-bold">3</span>
+                <div>
+                  <p class="text-text-main font-semibold" data-i18n="guide.s2.manual.s3.title">Activez le mode développeur</p>
+                  <p class="text-sm mt-1" data-i18n="guide.s2.manual.s3.desc">En haut à droite de la page, activez le bouton « Mode développeur ».</p>
+                </div>
+              </li>
+              <li class="flex gap-3">
+                <span class="flex-shrink-0 w-7 h-7 rounded-full bg-bg-hover text-text-muted text-sm flex items-center justify-center font-bold">4</span>
+                <div>
+                  <p class="text-text-main font-semibold" data-i18n="guide.s2.manual.s4.title">Chargez l'extension</p>
+                  <p class="text-sm mt-1" data-i18n="guide.s2.manual.s4.desc">Cliquez sur « Charger l'extension non empaquetée » et sélectionnez le dossier décompressé.</p>
+                </div>
+              </li>
+            </ol>
+          </details>
+        </div>
+
       </div>
     </div>
 
