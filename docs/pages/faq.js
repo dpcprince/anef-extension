@@ -230,6 +230,60 @@
     return { median: median(durations), n: durations.length };
   }
 
+  // BETTER metric for "is my long wait at étape 8 a bad sign":
+  // anchor on date_entretien (captured for ~57% of dossiers) and bin by
+  // months-since-entretien at the point a NEG/progress transition occurred.
+  // Avoids the bias of using first-observed étape-8 snapshot as anchor
+  // (70% of dossiers have only ONE étape-8 snapshot so the first-observed
+  // date is closer to "extension install date" than to the actual entry).
+  function computeEntretienBucketed(grouped) {
+    var exits = [];
+    grouped.forEach(function(snaps) {
+      var entretien = null;
+      for (var i = 0; i < snaps.length; i++) {
+        if (snaps[i].date_entretien) { entretien = snaps[i].date_entretien; break; }
+      }
+      if (!entretien) return;
+      var hasEt8 = false;
+      for (var i = 0; i < snaps.length; i++) { if (snaps[i].etape === 8 && snaps[i].date_statut) { hasEt8 = true; break; } }
+      if (!hasEt8) return;
+      // Find first transition AFTER entretien: NEG, or étape >= 9
+      var outcome = null, exitDate = null;
+      for (var j = 0; j < snaps.length; j++) {
+        var d = snaps[j].date_statut;
+        if (!d || d < entretien) continue;
+        var st = (snaps[j].statut || '').toLowerCase();
+        var et = snaps[j].etape || 0;
+        if (NEG[st]) { outcome = 'neg'; exitDate = d; break; }
+        if (et >= 9) { outcome = 'progress'; exitDate = d; break; }
+      }
+      if (!exitDate) return;
+      var t = U.daysDiffSigned(entretien, exitDate);
+      if (t == null || t < 0) return;
+      exits.push({ t: t, outcome: outcome });
+    });
+    // Bins (months → days): 0-3mo, 3-6mo, 6-12mo, 12-24mo
+    var bins = [
+      { lo: 0, hi: 90, label: '0_3mo' },
+      { lo: 90, hi: 180, label: '3_6mo' },
+      { lo: 180, hi: 365, label: '6_12mo' },
+      { lo: 365, hi: 730, label: '12_24mo' }
+    ];
+    var out = { n_total: exits.length, n_neg_total: 0, n_prog_total: 0, bins: {} };
+    bins.forEach(function(b) {
+      var inb = exits.filter(function(x) { return x.t >= b.lo && x.t < b.hi; });
+      var nNeg = inb.filter(function(x) { return x.outcome === 'neg'; }).length;
+      out.bins[b.label] = {
+        n: inb.length,
+        n_neg: nNeg,
+        pct_neg: inb.length > 0 ? (100 * nNeg / inb.length).toFixed(1) : '—'
+      };
+      out.n_neg_total += nNeg;
+      out.n_prog_total += inb.length - nNeg;
+    });
+    return out;
+  }
+
   function computeCycle(grouped) {
     var fav_cyc = [], neg_cyc = [];
     grouped.forEach(function(snaps) {
@@ -413,7 +467,18 @@
 
     renderEntry(a, 'A4_long_wait_means_neg', function() {
       var c = computeCycle(grouped);
-      return { fav_fmt: fmtDur(c.fav_median), neg_fmt: fmtDur(c.neg_median), n_fav: c.n_fav, n_neg: c.n_neg };
+      var eb = computeEntretienBucketed(grouped);
+      return {
+        fav_fmt: fmtDur(c.fav_median),
+        neg_fmt: fmtDur(c.neg_median),
+        n_fav: c.n_fav, n_neg: c.n_neg,
+        // entretien-bucketed
+        eb_n: eb.n_total,
+        eb_0_3_pct: eb.bins['0_3mo'].pct_neg, eb_0_3_n: eb.bins['0_3mo'].n,
+        eb_3_6_pct: eb.bins['3_6mo'].pct_neg, eb_3_6_n: eb.bins['3_6mo'].n,
+        eb_6_12_pct: eb.bins['6_12mo'].pct_neg, eb_6_12_n: eb.bins['6_12mo'].n,
+        eb_12_24_pct: eb.bins['12_24mo'].pct_neg, eb_12_24_n: eb.bins['12_24mo'].n
+      };
     });
 
     renderEntry(a, 'A5_prefecture_matters', function() {
@@ -458,12 +523,17 @@
     });
 
     renderEntry(c, 'C3_etape8_decision', function() {
-      var t = computeEtape8(grouped);
+      // Use entretien-bucketed view rather than first-observed-étape-8 anchor
+      // (which is biased — 70% of dossiers have a single étape-8 snapshot,
+      // so the anchor is closer to extension install date than to the actual
+      // étape-8 entry). The entretien anchor is captured upstream by ANEF.
+      var eb = computeEntretienBucketed(grouped);
       return {
-        med_progress_fmt: fmtDur(t.median_to_progress),
-        med_neg_fmt: fmtDur(t.median_to_neg),
-        n_progress: t.n_progressed,
-        n_neg: t.n_neg
+        eb_n: eb.n_total,
+        eb_0_3_pct: eb.bins['0_3mo'].pct_neg, eb_0_3_n: eb.bins['0_3mo'].n,
+        eb_3_6_pct: eb.bins['3_6mo'].pct_neg, eb_3_6_n: eb.bins['3_6mo'].n,
+        eb_6_12_pct: eb.bins['6_12mo'].pct_neg, eb_6_12_n: eb.bins['6_12mo'].n,
+        eb_12_24_pct: eb.bins['12_24mo'].pct_neg, eb_12_24_n: eb.bins['12_24mo'].n
       };
     });
 

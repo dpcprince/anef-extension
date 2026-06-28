@@ -74,12 +74,21 @@
 
     'faq.A4_long_wait_means_neg.q': 'Un long délai veut-il dire que je vais être refusé ?',
     'faq.A4_long_wait_means_neg.a':
-      '<p><strong>Non.</strong> Le délai d\'attente ne prédit pas l\'issue.</p>' +
-      '<ul style="margin:0.5rem 0 0.5rem 1.5rem;list-style:disc">' +
-      '<li>Délai médian dépôt → décret favorable : <strong>{fav_fmt}</strong> (n={n_fav})</li>' +
-      '<li>Délai médian dépôt → refus terminal : <strong>{neg_fmt}</strong> (n={n_neg})</li>' +
-      '</ul>' +
-      '<p style="margin-top:0.5rem">Les deux durées sont quasiment identiques. Un dossier qui prend du temps n\'est pas un dossier en route vers le refus — il est simplement long. Le vrai signal négatif, c\'est un statut explicite (refus, mise en demeure non régularisée, CSS notifié), pas la durée.</p>',
+      '<p><strong>Pas le délai total — mais une longue attente <em>après l\'entretien</em> peut être un signal faible.</strong></p>' +
+      '<p style="margin-top:0.5rem">En agrégé, les délais dépôt → décision finale sont quasi-identiques pour les dossiers acceptés et refusés (médiane <strong>{fav_fmt}</strong> contre <strong>{neg_fmt}</strong>, n={n_fav} vs {n_neg}). Donc « ça prend longtemps » globalement n\'est pas un signal.</p>' +
+      '<p style="margin-top:0.5rem">En revanche, le refus survient quasi-exclusivement <strong>après l\'entretien</strong>, et il existe une dérive du taux de refus quand l\'attente post-entretien s\'allonge :</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr>' +
+      '<th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Temps depuis l\'entretien</th>' +
+      '<th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Taux de refus</th>' +
+      '<th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">n</th>' +
+      '</tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 mois</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_0_3_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 mois</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_3_6_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 mois</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_6_12_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 mois</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">Lecture pratique : si tu approches d\'un an post-entretien sans décision, le risque relatif augmente — mais reste minoritaire. La majorité des dossiers dans cette tranche progressent quand même. <strong>Signal faible</strong>, à pondérer avec l\'absence d\'autre signe explicite (refus, mise en demeure, CSS).</p>' +
+      '<p style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-dim)">Cohorte : {eb_n} dossiers avec une date d\'entretien capturée et un événement post-entretien observé. Les effectifs au-delà de 12 mois sont faibles ({eb_12_24_n}) — chiffre indicatif, pas statistiquement significatif.</p>',
 
     'faq.A5_prefecture_matters.q': 'Ma préfecture a-t-elle un taux de refus particulièrement élevé ?',
     'faq.A5_prefecture_matters.a':
@@ -152,12 +161,20 @@
 
     'faq.C3_etape8_decision.q': 'Je suis à l\'étape 8 (Décision préfecture) — combien de temps avant de savoir ?',
     'faq.C3_etape8_decision.a':
-      '<p>L\'étape 8 est <strong>rapide</strong> : les décisions tombent vite, dans un sens ou dans l\'autre.</p>' +
-      '<ul style="margin:0.5rem 0 0.5rem 1.5rem;list-style:disc">' +
-      '<li>Vers une <strong style="color:#10b981">progression</strong> (étape 9+) : médiane <strong>{med_progress_fmt}</strong> (n={n_progress}).</li>' +
-      '<li>Vers un <strong style="color:#ef4444">refus terminal</strong> : médiane <strong>{med_neg_fmt}</strong> (n={n_neg}).</li>' +
-      '</ul>' +
-      '<p style="margin-top:0.5rem">Les refus arrivent même un peu plus rapidement que les progressions. Si tu es à l\'étape 8 depuis plus de 2 mois, statistiquement tu es bien parti·e pour la progression.</p>',
+      '<p>Ça dépend essentiellement du <strong>temps écoulé depuis ton entretien</strong> (pas du temps « affiché » à l\'étape 8, qui dépend du sous-statut courant).</p>' +
+      '<p style="margin-top:0.5rem">Sur {eb_n} dossiers du panel avec une date d\'entretien capturée et un événement post-entretien observé :</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr>' +
+      '<th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Temps depuis entretien</th>' +
+      '<th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Taux de refus</th>' +
+      '<th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Cohorte</th>' +
+      '</tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 mois</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_0_3_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 mois</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_3_6_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 mois</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_6_12_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 mois</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">La grande majorité des dossiers reçoivent leur décision dans les 6 mois post-entretien. Au-delà de 12 mois, le risque de refus monte (signal faible mais réel — voir A4 pour la lecture détaillée).</p>' +
+      '<p style="margin-top:0.5rem;font-size:0.8rem;color:var(--text-dim)">Note méthodologique : le temps « depuis le statut » affiché par ANEF se remet à zéro à chaque sous-statut (PROP_DECISION_PREF_A_EFFECTUER, PROP_DECISION_PREF_PROP_A_EDITER, etc.). C\'est pourquoi on ancre sur la date d\'entretien — c\'est l\'événement qui ne bouge pas.</p>',
 
     'faq.C4_etape9_sdanf.q': 'Je suis à l\'étape 9 (Contrôle SDANF) — combien de temps ça dure ?',
     'faq.C4_etape9_sdanf.a':
@@ -263,12 +280,21 @@
 
     'faq.A4_long_wait_means_neg.q': 'Does a long wait mean I\'ll be refused?',
     'faq.A4_long_wait_means_neg.a':
-      '<p><strong>No.</strong> Wait length does not predict outcome.</p>' +
-      '<ul style="margin:0.5rem 0 0.5rem 1.5rem;list-style:disc">' +
-      '<li>Median filing → favourable decree: <strong>{fav_fmt}</strong> (n={n_fav})</li>' +
-      '<li>Median filing → terminal refusal: <strong>{neg_fmt}</strong> (n={n_neg})</li>' +
-      '</ul>' +
-      '<p style="margin-top:0.5rem">The two durations are nearly identical. A case that takes time is not a case heading toward refusal — it\'s just a long case. The real negative signal is an explicit status (refusal, unaddressed formal notice, CSS notified), not the duration.</p>',
+      '<p><strong>Not the total wait — but a long wait <em>after the interview</em> can be a weak signal.</strong></p>' +
+      '<p style="margin-top:0.5rem">Globally, total filing → decision times are nearly identical for accepted and refused cases (median <strong>{fav_fmt}</strong> vs <strong>{neg_fmt}</strong>, n={n_fav} vs {n_neg}). So "it\'s taking long" overall is not a signal.</p>' +
+      '<p style="margin-top:0.5rem">However, refusal almost always happens <strong>after the interview</strong>, and the refusal rate drifts up with longer post-interview waits:</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr>' +
+      '<th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Time since interview</th>' +
+      '<th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Refusal rate</th>' +
+      '<th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">n</th>' +
+      '</tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 months</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_0_3_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 months</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_3_6_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 months</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_6_12_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 months</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">Practical reading: if you\'re approaching one year post-interview without a decision, the relative risk rises — but it remains minority. The majority in this bracket still progress favourably. <strong>Weak signal</strong>, to weight against the absence of any explicit negative sign.</p>' +
+      '<p style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-dim)">Cohort: {eb_n} cases with captured interview date and an observed post-interview event. Sample beyond 12 months is small ({eb_12_24_n}) — indicative figure, not statistically significant.</p>',
 
     'faq.A5_prefecture_matters.q': 'Does my prefecture have an unusually high refusal rate?',
     'faq.A5_prefecture_matters.a':
@@ -339,12 +365,20 @@
 
     'faq.C3_etape8_decision.q': 'I\'m at step 8 (Prefecture decision) — how long until I know?',
     'faq.C3_etape8_decision.a':
-      '<p>Step 8 is <strong>fast</strong>: decisions come quickly, one way or another.</p>' +
-      '<ul style="margin:0.5rem 0 0.5rem 1.5rem;list-style:disc">' +
-      '<li>Toward <strong style="color:#10b981">progression</strong> (step 9+): median <strong>{med_progress_fmt}</strong> (n={n_progress}).</li>' +
-      '<li>Toward <strong style="color:#ef4444">terminal refusal</strong>: median <strong>{med_neg_fmt}</strong> (n={n_neg}).</li>' +
-      '</ul>' +
-      '<p style="margin-top:0.5rem">Refusals actually come slightly faster than progressions. If you\'ve been at step 8 for over 2 months, statistically you\'re on the progression track.</p>',
+      '<p>It depends primarily on the <strong>time since your interview</strong> (not the "since-status" date shown by ANEF, which resets on each sub-status).</p>' +
+      '<p style="margin-top:0.5rem">On {eb_n} panel cases with a captured interview date and an observed post-interview event:</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr>' +
+      '<th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Time since interview</th>' +
+      '<th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Refusal rate</th>' +
+      '<th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Cohort</th>' +
+      '</tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 months</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_0_3_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 months</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_3_6_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 months</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_6_12_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 months</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">Most cases get a decision within 6 months post-interview. Beyond 12 months, refusal risk rises (weak but real signal — see A4 for the detailed reading).</p>' +
+      '<p style="margin-top:0.5rem;font-size:0.8rem;color:var(--text-dim)">Methodology note: the "since status" counter shown by ANEF resets at each sub-status (PROP_DECISION_PREF_A_EFFECTUER, PROP_DECISION_PREF_PROP_A_EDITER, etc.). That\'s why we anchor on the interview date — it\'s the event that doesn\'t move.</p>',
 
     'faq.C4_etape9_sdanf.q': 'I\'m at step 9 (SDANF control) — how long does this last?',
     'faq.C4_etape9_sdanf.a':
@@ -425,7 +459,15 @@
       '<p>En el panel: <strong>decision_negative_en_delais_recours</strong> ({n_classic}) — denegación prefectura; <strong>controle_demande_notifiee</strong> ({n_sdanf}) — denegación SDANF/ministerio; <strong>css_notifie</strong> ({n_css}) — irregularidad de estado civil; <strong>decision_notifiee</strong> ({n_post_rapo}) — notificación tras RAPO.</p>',
     'faq.A4_long_wait_means_neg.q': '¿Un plazo largo significa que voy a ser denegado?',
     'faq.A4_long_wait_means_neg.a':
-      '<p><strong>No.</strong> Mediana depósito → decreto: <strong>{fav_fmt}</strong> (n={n_fav}). Mediana depósito → denegación: <strong>{neg_fmt}</strong> (n={n_neg}). Casi idéntico. El plazo no predice la decisión.</p>',
+      '<p><strong>No el plazo total — pero una larga espera <em>después de la entrevista</em> puede ser una señal débil.</strong></p>' +
+      '<p style="margin-top:0.5rem">En agregado, mediana depósito → decreto <strong>{fav_fmt}</strong> vs denegación <strong>{neg_fmt}</strong> (casi idénticos). Pero la denegación ocurre casi siempre <strong>después de la entrevista</strong>, con deriva creciente:</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr><th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Tiempo post-entrevista</th><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Tasa denegación</th><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">n</th></tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 meses</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_0_3_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 meses</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_3_6_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 meses</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_6_12_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 meses</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">Más allá de 12 meses post-entrevista, el riesgo relativo aumenta pero sigue siendo minoritario. <strong>Señal débil</strong>. Cohorte: {eb_n} casos.</p>',
     'faq.A5_prefecture_matters.q': '¿Mi prefectura tiene una tasa de denegación particularmente alta?',
     'faq.A5_prefecture_matters.a':
       '<p>Entre las <strong>{n_pref}</strong> prefecturas con ≥20 decididos: más estricta <strong>{strictest}</strong> ({strictest_pct}%, n={strictest_n}). Más leniente <strong>{most_lenient}</strong> ({most_lenient_pct}%, n={most_lenient_n}). Diferencia ~5×.</p>',
@@ -454,7 +496,14 @@
       '<p><strong>No.</strong> Es una solicitud administrativa para completar tu expediente. En el panel, <strong>{n_med}</strong> expedientes recibieron MED: {n_recovered} volvieron a estado normal, {n_stuck} aún en MED, {n_neg} denegados, {n_fav} a decreto.</p>',
     'faq.C3_etape8_decision.q': 'Estoy en etapa 8 (Decisión prefectura) — ¿cuánto tiempo antes de saber?',
     'faq.C3_etape8_decision.a':
-      '<p>Etapa rápida. Progresión: mediana <strong>{med_progress_fmt}</strong> (n={n_progress}). Denegación: mediana <strong>{med_neg_fmt}</strong> (n={n_neg}).</p>',
+      '<p>Depende del <strong>tiempo desde tu entrevista</strong> (no del «desde el estado» de ANEF, que se reinicia con cada subestatus). Sobre {eb_n} casos con fecha de entrevista capturada:</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr><th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Tiempo desde entrevista</th><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">Tasa denegación</th><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">n</th></tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 meses</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_0_3_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 meses</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_3_6_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 meses</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_6_12_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 meses</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">La mayoría reciben decisión en los 6 meses post-entrevista. Más allá de 12 meses, el riesgo sube (señal débil pero real — ver A4).</p>',
     'faq.C4_etape9_sdanf.q': 'Estoy en etapa 9 (Control SDANF) — ¿cuánto dura?',
     'faq.C4_etape9_sdanf.a':
       '<p>La etapa más larga del recorrido. Mediana <strong>{median_fmt}</strong> antes de progresar a etapa 10 (n={n}).</p>',
@@ -510,7 +559,15 @@
       '<p>في اللوحة: <strong>decision_negative_en_delais_recours</strong> ({n_classic}) — رفض المحافظة؛ <strong>controle_demande_notifiee</strong> ({n_sdanf}) — رفض الوزارة؛ <strong>css_notifie</strong> ({n_css}) — مخالفة الحالة المدنية؛ <strong>decision_notifiee</strong> ({n_post_rapo}) — إشعار بعد RAPO.</p>',
     'faq.A4_long_wait_means_neg.q': 'هل المهلة الطويلة تعني أنني سأُرفض؟',
     'faq.A4_long_wait_means_neg.a':
-      '<p><strong>لا.</strong> الوسيط حتى مرسوم إيجابي: <strong>{fav_fmt}</strong> (n={n_fav}). الوسيط حتى الرفض النهائي: <strong>{neg_fmt}</strong> (n={n_neg}). متطابقان تقريبًا. المهلة لا تتنبأ بالنتيجة.</p>',
+      '<p><strong>ليس المهلة الإجمالية — لكن الانتظار الطويل <em>بعد المقابلة</em> قد يكون إشارة ضعيفة.</strong></p>' +
+      '<p style="margin-top:0.5rem">إجمالاً، الوسيط حتى المرسوم الإيجابي <strong>{fav_fmt}</strong> مقابل الرفض <strong>{neg_fmt}</strong> (متطابقان تقريبًا). لكن الرفض يحدث دائمًا تقريبًا <strong>بعد المقابلة</strong>، مع ارتفاع تدريجي:</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">الوقت بعد المقابلة</th><th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">نسبة الرفض</th><th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">n</th></tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 أشهر</td><td style="padding:0.2rem 0.7rem"><strong>{eb_0_3_pct}%</strong></td><td style="padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 أشهر</td><td style="padding:0.2rem 0.7rem"><strong>{eb_3_6_pct}%</strong></td><td style="padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 أشهر</td><td style="padding:0.2rem 0.7rem"><strong>{eb_6_12_pct}%</strong></td><td style="padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 شهرًا</strong></td><td style="padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">بعد 12 شهرًا من المقابلة، يرتفع الخطر النسبي لكنه يبقى أقلية. <strong>إشارة ضعيفة</strong>. الفوج: {eb_n} ملف.</p>',
     'faq.A5_prefecture_matters.q': 'هل محافظتي لديها نسبة رفض مرتفعة بشكل خاص؟',
     'faq.A5_prefecture_matters.a':
       '<p>بين <strong>{n_pref}</strong> محافظة بـ ≥20 قرار: الأكثر صرامة <strong>{strictest}</strong> ({strictest_pct}%، n={strictest_n}). الأقل صرامة <strong>{most_lenient}</strong> ({most_lenient_pct}%، n={most_lenient_n}). الفرق ~5×.</p>',
@@ -538,7 +595,14 @@
       '<p><strong>لا.</strong> إنها طلب إداري لإكمال ملفك. في اللوحة، <strong>{n_med}</strong> ملف تلقى MED: {n_recovered} عادوا إلى وضع طبيعي، {n_stuck} لا يزالون في MED، {n_neg} رُفضوا، {n_fav} حصلوا على مرسوم.</p>',
     'faq.C3_etape8_decision.q': 'أنا في المرحلة 8 (قرار المحافظة) — كم من الوقت قبل المعرفة؟',
     'faq.C3_etape8_decision.a':
-      '<p>مرحلة سريعة. التقدم: الوسيط <strong>{med_progress_fmt}</strong> (n={n_progress}). الرفض: الوسيط <strong>{med_neg_fmt}</strong> (n={n_neg}).</p>',
+      '<p>الأمر يعتمد على <strong>الوقت منذ المقابلة</strong> (وليس عداد ANEF «منذ الحالة» الذي يُعاد ضبطه مع كل حالة فرعية). على {eb_n} ملف بتاريخ مقابلة مُلتقَط:</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">الوقت منذ المقابلة</th><th style="padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">نسبة الرفض</th><th style="padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">n</th></tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 أشهر</td><td style="padding:0.2rem 0.7rem">{eb_0_3_pct}%</td><td style="padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 أشهر</td><td style="padding:0.2rem 0.7rem">{eb_3_6_pct}%</td><td style="padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 أشهر</td><td style="padding:0.2rem 0.7rem">{eb_6_12_pct}%</td><td style="padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 شهرًا</strong></td><td style="padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">معظم الملفات تتلقى قرارًا خلال 6 أشهر من المقابلة. بعد 12 شهرًا، يرتفع خطر الرفض (إشارة ضعيفة لكنها حقيقية — انظر A4).</p>',
     'faq.C4_etape9_sdanf.q': 'أنا في المرحلة 9 (التحكم SDANF) — كم تدوم؟',
     'faq.C4_etape9_sdanf.a':
       '<p>أطول مرحلة في المسار. الوسيط <strong>{median_fmt}</strong> قبل التقدم إلى المرحلة 10 (n={n}).</p>',
@@ -594,7 +658,15 @@
       '<p>面板中：<strong>decision_negative_en_delais_recours</strong>（{n_classic}）— 省拒绝；<strong>controle_demande_notifiee</strong>（{n_sdanf}）— 部级拒绝；<strong>css_notifie</strong>（{n_css}）— 民事身份不合规；<strong>decision_notifiee</strong>（{n_post_rapo}）— RAPO 后通知。</p>',
     'faq.A4_long_wait_means_neg.q': '长时间等待意味着我会被拒绝吗？',
     'faq.A4_long_wait_means_neg.a':
-      '<p><strong>不。</strong>从提交到法令中位 <strong>{fav_fmt}</strong>（n={n_fav}）。到最终拒绝 <strong>{neg_fmt}</strong>（n={n_neg}）。几乎相同。等待时长不预测结果。</p>',
+      '<p><strong>不是总等待 — 但<em>面谈后</em>的长时间等待可能是一个弱信号。</strong></p>' +
+      '<p style="margin-top:0.5rem">总体而言，提交→正面法令的中位 <strong>{fav_fmt}</strong> 与拒绝 <strong>{neg_fmt}</strong> 几乎相同。但拒绝几乎总是在<strong>面谈后</strong>发生，且随时间递增：</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr><th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">面谈后时间</th><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">拒绝率</th><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">n</th></tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 个月</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_0_3_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 个月</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_3_6_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 个月</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_6_12_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 个月</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">面谈后超过 12 个月，相对风险上升但仍为少数。<strong>弱信号</strong>。队列：{eb_n} 件案卷。</p>',
     'faq.A5_prefecture_matters.q': '我的省份拒绝率特别高吗？',
     'faq.A5_prefecture_matters.a':
       '<p>在 <strong>{n_pref}</strong> 个有 ≥20 件已决案卷的省份中：最严格 <strong>{strictest}</strong>（{strictest_pct}%，n={strictest_n}）。最宽松 <strong>{most_lenient}</strong>（{most_lenient_pct}%，n={most_lenient_n}）。差距约 5 倍。</p>',
@@ -622,7 +694,14 @@
       '<p><strong>不。</strong>这是要求你完善文件的行政请求。面板中 <strong>{n_med}</strong> 件案卷收到 MED：{n_recovered} 件恢复正常，{n_stuck} 件仍在 MED，{n_neg} 件被拒，{n_fav} 件获法令。</p>',
     'faq.C3_etape8_decision.q': '我在阶段 8（省决定）— 多久知道结果？',
     'faq.C3_etape8_decision.a':
-      '<p>快速阶段。前进：中位 <strong>{med_progress_fmt}</strong>（n={n_progress}）。拒绝：中位 <strong>{med_neg_fmt}</strong>（n={n_neg}）。</p>',
+      '<p>取决于<strong>面谈后的时间</strong>（不是 ANEF 的「自状态」计数器，它会在每个子状态重置）。基于 {eb_n} 件捕获了面谈日期的案卷：</p>' +
+      '<table style="margin:0.5rem 0;border-collapse:collapse;font-size:0.85rem"><thead><tr><th style="text-align:left;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">面谈后时间</th><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">拒绝率</th><th style="text-align:right;padding:0.25rem 0.7rem;border-bottom:1px solid var(--border)">n</th></tr></thead><tbody>' +
+      '<tr><td style="padding:0.2rem 0.7rem">0–3 个月</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_0_3_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_0_3_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">3–6 个月</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_3_6_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_3_6_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem">6–12 个月</td><td style="text-align:right;padding:0.2rem 0.7rem">{eb_6_12_pct}%</td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
+      '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 个月</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin-top:0.5rem">大多数案卷在面谈后 6 个月内得到决定。超过 12 个月，拒绝风险上升（弱信号但真实 — 见 A4）。</p>',
     'faq.C4_etape9_sdanf.q': '我在阶段 9（SDANF 控制）— 持续多久？',
     'faq.C4_etape9_sdanf.a':
       '<p>过程中最长的阶段。中位 <strong>{median_fmt}</strong> 至前进到阶段 10（n={n}）。</p>',
