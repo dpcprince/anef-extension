@@ -71,18 +71,22 @@ Le tableau de bord enrichi est utilisable **sans** installer le fork de l'extens
 
 L'extension officielle gère déjà l'authentification ANEF et la contribution de données. Le tableau de bord du fork lit la même base.
 
-Si vous voulez quand même charger le fork de l'extension localement (par exemple pour tester la nouvelle card comparaison inline du popup ou le bouton « Mon dossier » pré-rempli) :
+Si vous voulez quand même charger le fork de l'extension localement (par exemple pour tester la nouvelle card comparaison inline du popup ou le bouton « Mon dossier » pré-rempli), deux options :
+
+**Option A — Télécharger un ZIP signé** (le plus simple)
+
+1. Allez sur la [page Releases](https://github.com/dpcprince/anef-extension/releases/latest) du fork.
+2. Téléchargez `anef-statut-fork-vX.Y.Z.zip`.
+3. Décompressez dans un **dossier permanent** (ex : `C:\Extensions\anef-statut\` sur Windows). Si vous supprimez ce dossier, l'extension cesse de fonctionner.
+4. `chrome://extensions` (ou `brave://extensions`) → activer le **Mode développeur** → **Charger l'extension non empaquetée** → sélectionner le dossier décompressé.
+
+**Option B — Cloner le repo** (pour suivre `main` ou contribuer)
 
 ```bash
 git clone https://github.com/dpcprince/anef-extension.git
 ```
 
-Puis dans Chrome ou Brave :
-
-1. `chrome://extensions` (ou `brave://extensions`)
-2. Activer le **Mode développeur**
-3. **Charger l'extension non empaquetée**
-4. Sélectionner le dossier cloné
+Puis charger via `chrome://extensions` comme ci-dessus.
 
 ⚠️ Cohabite proprement avec l'extension officielle — désactiver l'une avant d'utiliser l'autre est plus propre (deux icônes dans la barre = deux écoutes simultanées du même onglet ANEF).
 
