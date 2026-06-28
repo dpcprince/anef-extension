@@ -7,8 +7,13 @@
   window.ANEF = window.ANEF || {};
 
   var _cfg = window.__SB_CONFIG__ || {};
-  var _SB_URL = _cfg.url || '__SUPABASE_URL__';
-  var _SB_KEY = _cfg.key || '__SUPABASE_ANON_KEY__';
+  // anef-statut fork: hardcoded to the upstream Letranger-dev Supabase
+  // project. The anon key is a public client credential (RLS protects
+  // the data) and is the same one upstream's deployed dashboard ships.
+  // This way our fork's dashboard reads from the same community pool
+  // instead of forking the dataset into a parallel database.
+  var _SB_URL = _cfg.url || 'https://okogtnzuuhdwogvdnitm.supabase.co';
+  var _SB_KEY = _cfg.key || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rb2d0bnp1dWhkd29ndmRuaXRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MTc0MjMsImV4cCI6MjA4NjM5MzQyM30.9J6U_szY5vda6yxbFBdlCNANPYDuonHVGbS8rKl7drA';
   delete window.__SB_CONFIG__;
 
   var CACHE_KEY = 'anef_snapshots';
