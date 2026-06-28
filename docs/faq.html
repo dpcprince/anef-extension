@@ -1,19 +1,19 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-  <title data-i18n="meta.feedback.title">ANEF Stats — Contact et retours</title>
-  <meta name="description" data-i18n-attr="content:meta.feedback.desc" content="Signalez un problème ou envoyez vos retours sur ANEF Status Tracker, l'extension Chrome de suivi de naturalisation française.">
-  <link rel="canonical" href="https://dpcprince.github.io/anef-extension/feedback.html">
-  <link rel="alternate" hreflang="fr" href="https://dpcprince.github.io/anef-extension/feedback.html?lang=fr">
-  <link rel="alternate" hreflang="en" href="https://dpcprince.github.io/anef-extension/feedback.html?lang=en">
-  <link rel="alternate" hreflang="es" href="https://dpcprince.github.io/anef-extension/feedback.html?lang=es">
-  <link rel="alternate" hreflang="ar" href="https://dpcprince.github.io/anef-extension/feedback.html?lang=ar">
-  <link rel="alternate" hreflang="zh" href="https://dpcprince.github.io/anef-extension/feedback.html?lang=zh">
-  <link rel="alternate" hreflang="x-default" href="https://dpcprince.github.io/anef-extension/feedback.html">
+  <title data-i18n="meta.faq.title">ANEF Stats — FAQ : ce que disent vraiment les données</title>
+  <meta name="description" data-i18n-attr="content:meta.faq.desc" content="Réponses basées sur données : quand survient un refus, taux de succès RAPO, mise en demeure, ce que signifie l'attente. Décisions guidées par le panel communautaire.">
+  <link rel="canonical" href="https://dpcprince.github.io/anef-extension/faq.html">
+  <link rel="alternate" hreflang="fr" href="https://dpcprince.github.io/anef-extension/faq.html?lang=fr">
+  <link rel="alternate" hreflang="en" href="https://dpcprince.github.io/anef-extension/faq.html?lang=en">
+  <link rel="alternate" hreflang="es" href="https://dpcprince.github.io/anef-extension/faq.html?lang=es">
+  <link rel="alternate" hreflang="ar" href="https://dpcprince.github.io/anef-extension/faq.html?lang=ar">
+  <link rel="alternate" hreflang="zh" href="https://dpcprince.github.io/anef-extension/faq.html?lang=zh">
+  <link rel="alternate" hreflang="x-default" href="https://dpcprince.github.io/anef-extension/faq.html">
   <script>
     (function () {
       try {
@@ -23,13 +23,11 @@
         document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {}
     })();
-    /* Apply language + text direction before first paint (anti-FOUC).
-       Reads localStorage, falls back to the browser language, then 'fr'. */
     (function () {
       try {
         var SUP = ['fr', 'en', 'es', 'ar', 'zh'];
         var p = new URLSearchParams(location.search).get('lang');
-        if (p && SUP.indexOf(p) !== -1) { try { localStorage.setItem('anef-lang', p); } catch (e) {} }
+        if (p && SUP.indexOf(p) !== -1) { try { localStorage.setItem('anef-lang', p); } catch(e){} }
         var saved = localStorage.getItem('anef-lang');
         var nav = (navigator.language || '').slice(0, 2).toLowerCase();
         var lang = (p && SUP.indexOf(p) !== -1) ? p
@@ -70,7 +68,6 @@
 </head>
 <body class="bg-bg font-sans text-text-main leading-relaxed min-h-screen">
 
-  <!-- Header -->
   <header class="bg-bg-card border-b-[3px]" style="border-image:linear-gradient(to right,#002395,#fff,#ED2939) 1">
     <div class="max-w-container mx-auto px-4 py-2.5 md:py-3 flex items-center justify-center gap-2.5 flex-wrap">
       <h1 class="text-[0.95rem] md:text-lg font-bold whitespace-nowrap">ANEF Status Tracker</h1>
@@ -80,7 +77,6 @@
     </div>
   </header>
 
-  <!-- Desktop Nav -->
   <nav class="hidden md:block sticky top-0 z-50 bg-bg-card/95 backdrop-blur-md border-b border-border">
     <div class="max-w-container mx-auto px-6 flex overflow-x-auto">
       <a href="index.html" class="nav-link py-3 px-5 text-[0.9rem] font-semibold text-text-dim whitespace-nowrap border-b-2 border-transparent hover:text-text-muted transition-colors" data-i18n="nav.accueil">Accueil</a>
@@ -94,14 +90,10 @@
     </div>
   </nav>
 
-  <!-- Mobile Nav -->
   <nav class="md:hidden fixed bottom-0 inset-x-0 z-[999] bg-bg-card border-t border-border" style="padding-bottom:env(safe-area-inset-bottom,0)">
     <div class="mobile-nav-bar flex justify-around items-stretch">
       <a href="index.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
         <span class="text-base leading-none mb-0.5">&#x1F3E0;</span><span data-i18n="nav.accueil">Accueil</span>
-      </a>
-      <a href="dossiers.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
-        <span class="text-base leading-none mb-0.5">&#x1F4C1;</span><span data-i18n="nav.dossiers">Dossiers</span>
       </a>
       <a href="prefectures.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
         <span class="text-base leading-none mb-0.5">&#x1F4CD;</span><span data-i18n="nav.prefectures_short">Préf.</span>
@@ -118,74 +110,82 @@
       <a href="guide.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
         <span class="text-base leading-none mb-0.5">&#x1F4D6;</span><span data-i18n="nav.guide">Guide</span>
       </a>
-      <a href="feedback.html" class="nav-link flex flex-col items-center justify-center flex-1 text-text-dim text-[0.55rem] font-medium">
-        <span class="text-base leading-none mb-0.5">&#x1F4AC;</span><span data-i18n="nav.contact">Contact</span>
-      </a>
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <div class="max-w-container mx-auto px-4 md:px-6 py-8 md:py-12 pb-20 md:pb-12">
-    <div class="text-center max-w-lg mx-auto">
-
-      <div class="text-5xl mb-4">&#x1F4AC;</div>
-      <h2 class="text-2xl md:text-3xl font-bold mb-4" data-i18n="feedback.hero_title">Signaler un bug ou proposer une idée</h2>
-      <p class="text-text-muted text-base leading-relaxed mb-8" data-i18n="feedback.hero_desc">
-        Vous avez trouvé un bug ? Vous avez une suggestion d'amélioration ou une fonctionnalité à proposer ?
-        Rejoignez notre groupe Facebook pour en discuter avec la communauté !
-      </p>
-
-      <a href="https://www.facebook.com/groups/1206709331640208" target="_blank" rel="noopener"
-         class="inline-block bg-[#1877F2] hover:bg-[#166FE5] text-white px-8 py-3.5 rounded-xl font-semibold text-lg transition-colors shadow-lg"
-         data-i18n="feedback.cta_facebook">
-        Rejoindre le groupe Facebook
-      </a>
-
-      <div class="mt-12 text-left">
-        <p class="text-text-dim text-sm font-semibold uppercase tracking-wider mb-4 text-center" data-i18n="feedback.cards_intro">Le groupe est l'endroit idéal pour :</p>
-        <div class="grid gap-3 sm:grid-cols-2">
-          <div class="bg-bg-card rounded-card border border-border p-4 text-center">
-            <span class="text-2xl block mb-2">&#x1F41B;</span>
-            <p class="text-text-main font-semibold text-sm" data-i18n="feedback.card_bug_title">Signaler un bug</p>
-            <p class="text-text-dim text-xs mt-1" data-i18n="feedback.card_bug_desc">Un affichage incorrect, une erreur, un plantage</p>
-          </div>
-          <div class="bg-bg-card rounded-card border border-border p-4 text-center">
-            <span class="text-2xl block mb-2">&#x1F4A1;</span>
-            <p class="text-text-main font-semibold text-sm" data-i18n="feedback.card_idea_title">Proposer une idée</p>
-            <p class="text-text-dim text-xs mt-1" data-i18n="feedback.card_idea_desc">De nouvelles fonctionnalités ou améliorations</p>
-          </div>
-          <div class="bg-bg-card rounded-card border border-border p-4 text-center">
-            <span class="text-2xl block mb-2">&#x1F527;</span>
-            <p class="text-text-main font-semibold text-sm" data-i18n="feedback.card_fix_title">Demander une correction</p>
-            <p class="text-text-dim text-xs mt-1" data-i18n="feedback.card_fix_desc">Des données incorrectes, des textes à modifier</p>
-          </div>
-          <div class="bg-bg-card rounded-card border border-border p-4 text-center">
-            <span class="text-2xl block mb-2">&#x1F4AC;</span>
-            <p class="text-text-main font-semibold text-sm" data-i18n="feedback.card_chat_title">Échanger</p>
-            <p class="text-text-dim text-xs mt-1" data-i18n="feedback.card_chat_desc">Discuter avec la communauté</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
+  <div id="loading" class="text-center py-12 text-text-muted">
+    <div class="inline-block w-9 h-9 border-[3px] border-border border-t-primary rounded-full animate-spin mb-4"></div>
+    <p class="text-base" data-i18n="faq.loading">Chargement des réponses...</p>
   </div>
 
-  <!-- Footer -->
+  <div id="main-content" class="max-w-container mx-auto px-4 md:px-6 py-4 md:py-6 pb-20 md:pb-6" style="display:none">
+
+    <div class="section">
+      <h2 data-i18n="faq.intro_title">Ce que disent vraiment les données</h2>
+      <p class="section-subtitle" data-i18n="faq.intro_sub">Toutes les réponses ci-dessous sont calculées en direct à partir du panel communautaire (<span id="faq-dossier-count">—</span> dossiers anonymisés). Cliquez sur une question pour voir la réponse et les chiffres correspondants.</p>
+    </div>
+
+    <!-- Section A: Rejection deep-dive -->
+    <div class="section">
+      <h2 data-i18n="faq.cat_rejection">A. Le refus — à quoi ça ressemble vraiment</h2>
+      <p class="section-subtitle" data-i18n="faq.cat_rejection_sub">Les chiffres bruts sur les dossiers refusés : combien, quand, sous quelle forme, et avec quelle préfecture.</p>
+      <div class="faq-list" id="faq-cat-rejection">
+        <!-- A1..A5 inject here -->
+      </div>
+    </div>
+
+    <!-- Section B: RAPO -->
+    <div class="section">
+      <h2 data-i18n="faq.cat_rapo">B. Le RAPO — comprendre et déposer un recours</h2>
+      <p class="section-subtitle" data-i18n-html="faq.cat_rapo_sub">Si tu reçois un refus, le <strong>Recours Administratif Préalable Obligatoire</strong> est la première (et obligatoire) étape avant tout recours juridictionnel. Ce qui suit combine les chiffres observés et les éléments de procédure.</p>
+      <div class="faq-list" id="faq-cat-rapo">
+        <!-- B1..B5 inject here -->
+      </div>
+    </div>
+
+    <!-- Section C: Per-step questions -->
+    <div class="section">
+      <h2 data-i18n="faq.cat_steps">C. « Je suis bloqué à l'étape X » — ce que ça veut vraiment dire</h2>
+      <p class="section-subtitle" data-i18n-html="faq.cat_steps_sub">Pour la définition de chaque étape, voir le <a href="guide.html" class="text-primary-light hover:underline">Guide</a>. Ici, on regarde combien de temps les autres y restent et ce qui se passe ensuite.</p>
+      <div class="faq-list" id="faq-cat-steps">
+        <!-- C1..C6 inject here -->
+      </div>
+    </div>
+
+    <!-- Section D: Common worries -->
+    <div class="section">
+      <h2 data-i18n="faq.cat_worries">D. Faut-il s'inquiéter ?</h2>
+      <p class="section-subtitle" data-i18n="faq.cat_worries_sub">Les signaux que les gens prennent pour des mauvaises nouvelles — vérifiés sur données.</p>
+      <div class="faq-list" id="faq-cat-worries">
+        <!-- D1..D4 inject here -->
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="faq.method_title">Méthodologie & limites</h2>
+      <p class="section-subtitle" data-i18n-html="faq.method_body">Les chiffres sont recalculés sur chaque visite à partir du panel communautaire (~6 300 dossiers). Le panel n'est pas exhaustif et peut être biaisé en faveur des utilisateurs d'extension. Les estimations basées sur de petits échantillons (RAPO, refus tardifs) sont marquées comme telles. Pour le détail mathématique, voir la <a href="delais.html" class="text-primary-light hover:underline">page Délais</a> et la modale méthodologie sur <a href="mon-dossier.html" class="text-primary-light hover:underline">Mon dossier</a>.</p>
+    </div>
+
+  </div>
+
   <footer class="text-center py-6 md:py-8 text-text-dim text-sm pb-20 md:pb-8">
     <p><a href="https://github.com/dpcprince/anef-extension" class="text-primary-light hover:underline">ANEF Status Tracker</a> &mdash; <span data-i18n="footer.tagline">Extension Chrome pour suivre votre naturalisation</span></p>
     <p data-i18n="footer.collected">Données collectées anonymement par les utilisateurs de l'extension</p>
   </footer>
 
-  <!-- i18n : moteur puis catalogues (fr = référence/repli). Avant tout le reste. -->
   <script src="shared/i18n/i18n.js"></script>
   <script src="shared/i18n/fr.js"></script>
   <script src="shared/i18n/en.js"></script>
   <script src="shared/i18n/es.js"></script>
   <script src="shared/i18n/ar.js"></script>
   <script src="shared/i18n/zh.js"></script>
-  <script src="shared/i18n/pages/feedback.js"></script>
+  <script src="shared/i18n/pages/faq.js"></script>
   <script src="shared/constants.js"></script>
   <script src="shared/utils.js"></script>
+  <script src="shared/stats-math.js"></script>
+  <script src="config.local.js" onerror="/* not in local dev */"></script>
+  <script src="shared/data.js"></script>
   <script src="shared/nav.js"></script>
+  <script src="pages/faq.js"></script>
 </body>
 </html>

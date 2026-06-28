@@ -16,6 +16,8 @@
     'meta.prefectures.title': 'ANEF Stats — Plazos de naturalización por prefectura',
     'meta.delais.title': 'ANEF Stats — Plazos de naturalización francesa',
     'meta.guide.title': 'ANEF Stats — Guía de las etapas de naturalización',
+    'meta.faq.title': 'ANEF Stats — FAQ: lo que realmente dicen los datos',
+    'meta.faq.desc': 'Respuestas basadas en datos: cuándo ocurre la denegación, tasa de éxito RAPO, mise en demeure, qué significa esperar.',
     'meta.feedback.title': 'ANEF Stats — Contacto y comentarios',
     'meta.accueil.desc': 'Sigue los plazos de naturalización francesa en tiempo real con los datos anónimos de la comunidad. Estadísticas por prefectura, etapas SDANF/SCEC, duraciones medias.',
     'meta.dossiers.desc': 'Explora los expedientes de naturalización francesa: estado actual, historial de etapas, duraciones por prefectura. Datos anónimos y comunitarios.',
@@ -35,6 +37,7 @@
     'nav.mondossier': 'Mi expediente',
     'nav.mondossier_short': 'Mío',
     'nav.guide': 'Guía',
+    'nav.faq': 'FAQ',
     'nav.contact': 'Contacto',
 
     // ── Página Mi expediente (fork) ──

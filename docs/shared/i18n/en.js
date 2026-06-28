@@ -16,6 +16,8 @@
     'meta.prefectures.title': 'ANEF Stats — Naturalisation times by prefecture',
     'meta.delais.title': 'ANEF Stats — French naturalisation timelines',
     'meta.guide.title': 'ANEF Stats — Guide to the naturalisation steps',
+    'meta.faq.title': 'ANEF Stats — FAQ: what the data actually says',
+    'meta.faq.desc': 'Data-backed answers: when refusal happens, RAPO success rate, mise en demeure, what waiting means. Decisions guided by the community panel.',
     'meta.feedback.title': 'ANEF Stats — Contact and feedback',
     'meta.accueil.desc': 'Track French naturalisation times in real time using the community’s anonymous data. Statistics by prefecture, SDANF/SCEC steps, average durations.',
     'meta.dossiers.desc': 'Explore French naturalisation cases: current status, step history, durations by prefecture. Anonymous, community-sourced data.',
@@ -35,6 +37,7 @@
     'nav.mondossier': 'My case',
     'nav.mondossier_short': 'Mine',
     'nav.guide': 'Guide',
+    'nav.faq': 'FAQ',
     'nav.contact': 'Contact',
 
     // ── My case page (fork) ──

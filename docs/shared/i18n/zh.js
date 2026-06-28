@@ -17,6 +17,8 @@
     'meta.prefectures.title': 'ANEF Stats — 各省政府入籍时长',
     'meta.delais.title': 'ANEF Stats — 法国入籍时长',
     'meta.guide.title': 'ANEF Stats — 入籍步骤指南',
+    'meta.faq.title': 'ANEF Stats — 问答：数据真正告诉我们什么',
+    'meta.faq.desc': '基于数据的答案：拒绝何时发生，RAPO 成功率，催告书，等待意味着什么。',
     'meta.feedback.title': 'ANEF Stats — 联系与反馈',
     'meta.accueil.desc': '借助社区的匿名数据实时跟踪法国入籍时长。按省政府的统计、SDANF/SCEC 各阶段、平均时长。',
     'meta.dossiers.desc': '浏览法国入籍案卷：当前状态、阶段历史、按省政府的时长。匿名的社区数据。',
@@ -36,6 +38,7 @@
     'nav.mondossier': '我的档案',
     'nav.mondossier_short': '我的',
     'nav.guide': '指南',
+    'nav.faq': '问答',
     'nav.contact': '联系',
 
     // ── 我的档案页面（分叉添加） ──
