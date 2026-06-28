@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "anef-statut (fork)",
-  "version": "2.7.0.1",
-  "version_name": "2.7.0-anefstatut.1",
+  "version": "2.7.0.2",
+  "version_name": "2.7.0-anefstatut.2",
   "description": "Fork de l'extension ANEF Status — opt-in consent, KPIs corrigés, comparaison sur anef-statut.",
   "author": "anef-statut",
   "default_locale": "fr",
@@ -33,6 +33,15 @@
       ],
       "js": ["content/content-script.js"],
       "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "https://dpcprince.github.io/anef-extension/*",
+        "https://letranger-dev.github.io/anef-extension/*"
+      ],
+      "js": ["content/dashboard-sync.js"],
+      "run_at": "document_idle",
       "all_frames": false
     }
   ],

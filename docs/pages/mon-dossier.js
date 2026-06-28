@@ -204,9 +204,11 @@
     prefContainer.appendChild(sel);
     state._prefSelect = sel;
 
-    // Statut select (reuse the rich component)
+    // Statut select (reuse the rich component). Capture the API so
+    // setStatut() can drive the visible dropdown label when hydrating
+    // from URL, localStorage, or a postMessage from the extension.
     if (ANEF.ui && ANEF.ui.createStatusSelect) {
-      ANEF.ui.createStatusSelect('md-statut-container', {
+      state._statutSelect = ANEF.ui.createStatusSelect('md-statut-container', {
         defaultValue: 'all',
         includeAll: true,
         onChange: function(code) {
@@ -287,9 +289,12 @@
   }
   function setStatut(v) {
     state.inputs.statut = v;
-    // Rich status select doesn't expose a setter — re-init wouldn't be ideal;
-    // the user's URL/storage value is reflected in computation, just not in
-    // the dropdown label. Acceptable trade-off for v1.
+    // Update the rich select's visible label via the setValue API captured
+    // in initInputs(). Without this the form would compute correctly but
+    // show "Toutes les étapes" — confusing when arriving via deep-link.
+    if (state._statutSelect && state._statutSelect.setValue) {
+      state._statutSelect.setValue(v);
+    }
   }
   function setDate(which, v) {
     if (which === 'depot') {
