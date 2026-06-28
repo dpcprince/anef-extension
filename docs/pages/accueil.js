@@ -88,6 +88,11 @@
 
   // ─── Cron history modal ───
   // per_page=30 → ~30h of history at the current hourly cadence.
+  // anef-statut fork: stays pointed at the upstream Letranger-dev workflow
+  // on purpose. The fork's dashboard reads from upstream's Supabase pool
+  // (see docs/shared/data.js) so upstream's refresh cadence IS our
+  // freshness signal — replacing this URL with a dpcprince one would 404
+  // because the fork doesn't run its own refresh-data CI.
   var GITHUB_RUNS_API = 'https://api.github.com/repos/Letranger-dev/anef-extension/actions/workflows/refresh-data.yml/runs?per_page=30';
 
   function formatAgo(dateStr) {

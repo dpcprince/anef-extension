@@ -52,7 +52,7 @@
     'guide.s4.c3.desc': "Seul le jour est conservé, jamais l'heure exacte, pour qu'aucun recoupement ne soit possible.",
     'guide.s4.c4.title': "Désactivable à tout moment",
     'guide.s4.c4.desc': "Un simple clic dans les paramètres de l'extension et le partage s'arrête. Aucune pression.",
-    'guide.s4.opensource': "Code 100% open source — <a href=\"https://github.com/Letranger-dev/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">vérifiez par vous-même sur GitHub</a>"
+    'guide.s4.opensource': "Code 100% open source — <a href=\"https://github.com/dpcprince/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">vérifiez par vous-même sur GitHub</a>"
   });
 
   /* ---------------------------------------------------------------- EN */
@@ -104,7 +104,7 @@
     'guide.s4.c3.desc': "Only the day is kept, never the exact time, so that no cross-referencing is possible.",
     'guide.s4.c4.title': "Can be turned off anytime",
     'guide.s4.c4.desc': "A single click in the extension settings stops the sharing. No pressure.",
-    'guide.s4.opensource': "100% open-source code — <a href=\"https://github.com/Letranger-dev/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">check it yourself on GitHub</a>"
+    'guide.s4.opensource': "100% open-source code — <a href=\"https://github.com/dpcprince/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">check it yourself on GitHub</a>"
   });
 
   /* ---------------------------------------------------------------- ES */
@@ -156,7 +156,7 @@
     'guide.s4.c3.desc': "Solo se conserva el día, nunca la hora exacta, para que no sea posible ningún cruce de datos.",
     'guide.s4.c4.title': "Desactivable en cualquier momento",
     'guide.s4.c4.desc': "Un simple clic en los ajustes de la extensión y el uso compartido se detiene. Sin presión.",
-    'guide.s4.opensource': "Código 100% de código abierto — <a href=\"https://github.com/Letranger-dev/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">compruébalo tú mismo en GitHub</a>"
+    'guide.s4.opensource': "Código 100% de código abierto — <a href=\"https://github.com/dpcprince/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">compruébalo tú mismo en GitHub</a>"
   });
 
   /* ---------------------------------------------------------------- AR */
@@ -208,7 +208,7 @@
     'guide.s4.c3.desc': "يُحتفظ باليوم فقط، وليس بالوقت الدقيق أبدًا، حتى لا يكون أي ربط ممكنًا.",
     'guide.s4.c4.title': "قابل للتعطيل في أي وقت",
     'guide.s4.c4.desc': "نقرة واحدة في إعدادات الإضافة وتتوقّف المشاركة. دون أي ضغط.",
-    'guide.s4.opensource': "شفرة مفتوحة المصدر 100% — <a href=\"https://github.com/Letranger-dev/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">تحقّق بنفسك على GitHub</a>"
+    'guide.s4.opensource': "شفرة مفتوحة المصدر 100% — <a href=\"https://github.com/dpcprince/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">تحقّق بنفسك على GitHub</a>"
   });
 
   /* ---------------------------------------------------------------- ZH */
@@ -260,6 +260,6 @@
     'guide.s4.c3.desc': "仅保留日期，绝不保留具体时间，以确保无法进行任何数据交叉比对。",
     'guide.s4.c4.title': "随时可禁用",
     'guide.s4.c4.desc': "在扩展设置中只需点击一下，共享即停止。毫无压力。",
-    'guide.s4.opensource': "100% 开源代码 — <a href=\"https://github.com/Letranger-dev/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">在 GitHub 上自行验证</a>"
+    'guide.s4.opensource': "100% 开源代码 — <a href=\"https://github.com/dpcprince/anef-extension\" target=\"_blank\" rel=\"noopener\" class=\"text-primary-light hover:underline\">在 GitHub 上自行验证</a>"
   });
 })();
