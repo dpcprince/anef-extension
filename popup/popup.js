@@ -832,10 +832,6 @@ async function renderCohortComparison(statusData, apiData, closed) {
   }
 }
 
-function escapeHtml(s) {
-  return String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-}
-
 function canonicalisePrefecture(p) {
   if (!p) return null;
   return String(p)
