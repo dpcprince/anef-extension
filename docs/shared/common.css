@@ -3488,4 +3488,117 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: now
 }
 .faq-link:hover { text-decoration: underline; }
 
+/* ─── Mon dossier — form grid + sync banner + tooltip ──────── */
+
+.md-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.md-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.md-form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.md-form-optional {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-weight: 400;
+  opacity: 0.7;
+}
+.md-tooltip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: help;
+  text-transform: none;
+  letter-spacing: 0;
+  user-select: none;
+}
+.md-tooltip:hover, .md-tooltip:focus {
+  background: var(--primary);
+  color: #fff;
+  outline: none;
+}
+
+/* Sync banner — auto-managed state */
+.md-sync-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+  border: 1px solid var(--border);
+}
+.md-sync-banner.md-sync-pending {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: var(--primary-light);
+}
+.md-sync-banner.md-sync-success {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: var(--green, #10b981);
+}
+.md-sync-banner.md-sync-unavailable {
+  background: rgba(245, 158, 11, 0.10);
+  border-color: rgba(245, 158, 11, 0.30);
+  color: var(--warning, #f59e0b);
+}
+.md-sync-banner.md-sync-no-data {
+  background: rgba(148, 163, 184, 0.10);
+  border-color: rgba(148, 163, 184, 0.30);
+  color: var(--text-muted);
+}
+.md-sync-icon { font-size: 1.1rem; flex-shrink: 0; }
+.md-sync-text { flex: 1; line-height: 1.4; }
+.md-sync-action {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid currentColor;
+  color: inherit;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.md-sync-action:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+@media (max-width: 640px) {
+  .md-form-grid { padding: 1rem; gap: 0.75rem; }
+  .md-form-label { font-size: 0.72rem; }
+}
+
 

@@ -64,16 +64,18 @@
         .replace(/[’]/g, "'");
 
       var dateDepot = apiData.dateDepot || (apiData.rawTaxePayee && apiData.rawTaxePayee.date_consommation) || null;
-      var dateEntreeEtape = apiData.dateEntretien || (apiData.rawEntretien && apiData.rawEntretien.date_rdv) || null;
+      var dateEntretien = apiData.dateEntretien || (apiData.rawEntretien && apiData.rawEntretien.date_rdv) || null;
 
       return {
         prefecture: prefCanon || null,
         statut: lastStatus.statut ? String(lastStatus.statut).toLowerCase() : null,
         dateDepot: dateDepot ? String(dateDepot).slice(0, 10) : null,
-        // mon-dossier.js only uses dateEntreeEtape for étape-8 (entretien
-        // d'assimilation). Pass it through unconditionally — the page
-        // logic decides whether to apply it.
-        dateEntreeEtape: dateEntreeEtape ? String(dateEntreeEtape).slice(0, 10) : null
+        // Always send dateEntretien (étape 7 anchor) as its own field —
+        // mon-dossier.js uses it for entretien-bucketed analysis.
+        dateEntretien: dateEntretien ? String(dateEntretien).slice(0, 10) : null,
+        // Also pass as dateEntreeEtape for users at étape 8 where the
+        // entretien IS the étape-8 entry. mon-dossier.js handles both.
+        dateEntreeEtape: dateEntretien ? String(dateEntretien).slice(0, 10) : null
       };
     } catch (err) {
       console.warn('[anef-statut dashboard-sync] failed to read storage:', err);
@@ -83,13 +85,16 @@
 
   async function postToPage() {
     var dossier = await loadDossier();
-    if (!dossier) return;
-    // Posting to `window` (not parent / iframes) because mon-dossier.js
-    // checks `ev.source === window`.
-    window.postMessage({
+    // Always post — even with null dossier — so the page can distinguish
+    // "extension not installed" from "extension installed but no data".
+    // The page's banner state machine relies on this signal.
+    var msg = {
       source: 'anef-statut-extension',
-      dossier: dossier
-    }, window.location.origin);
+      dossier: dossier,  // null if storage was empty
+      version: '2'  // bump if you change the protocol shape
+    };
+    console.info('[anef-statut dashboard-sync] posting to page:', msg);
+    window.postMessage(msg, window.location.origin);
   }
 
   if (document.readyState === 'loading') {

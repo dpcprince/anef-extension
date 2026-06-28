@@ -128,37 +128,44 @@
   <!-- Main Content -->
   <div id="main-content" class="max-w-container mx-auto px-4 md:px-6 py-4 md:py-6 pb-20 md:pb-6" style="display:none">
 
-    <!-- From-extension badge -->
-    <div id="from-extension-banner" class="md-from-ext hidden">
-      ✓ <span data-i18n="mondossier.from_ext">Données pré-remplies depuis l'extension. Modifie-les librement.</span>
+    <!-- Sync status banner — auto-managed by mon-dossier.js -->
+    <div id="md-sync-banner" class="md-sync-banner md-sync-pending">
+      <span class="md-sync-icon" id="md-sync-icon">⏳</span>
+      <span class="md-sync-text" id="md-sync-text" data-i18n="mondossier.sync_pending">Recherche d'une extension ANEF compatible…</span>
+      <button type="button" class="md-sync-action" id="md-sync-action" style="display:none"></button>
     </div>
 
     <!-- Inputs section -->
     <div class="section" id="inputs-section">
       <h2 data-i18n="mondossier.inputs_title">Mon dossier</h2>
-      <p class="section-subtitle" data-i18n="mondossier.inputs_subtitle">Renseigne ta préfecture, ton statut et ta date de dépôt. Tout se calcule localement dans ton navigateur.</p>
-      <div class="estimator">
-        <div class="estimator-form" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
-          <div class="estimator-field">
-            <label data-i18n="mondossier.field_prefecture">Préfecture</label>
-            <div id="md-prefecture-container"></div>
-          </div>
-          <div class="estimator-field">
-            <label data-i18n="mondossier.field_statut">Statut interne ANEF</label>
-            <div id="md-statut-container"></div>
-          </div>
-          <div class="estimator-field">
-            <label data-i18n="mondossier.field_depot">Date de dépôt</label>
-            <input type="date" id="md-depot" class="md-date-input" />
-          </div>
-          <div class="estimator-field">
-            <label>
-              <span data-i18n="mondossier.field_entree_etape">Entrée à l'étape</span>
-              <span class="text-text-dim text-xs" data-i18n="mondossier.optional">(optionnel)</span>
-            </label>
-            <input type="date" id="md-entree-etape" class="md-date-input" />
-            <small class="text-text-dim text-xs mt-1" data-i18n="mondossier.entree_etape_hint">Pour l'étape 8 (Décision préfecture), c'est généralement la date de l'entretien d'assimilation. Permet une comparaison juste, qui résiste au ping-pong entre sous-statuts.</small>
-          </div>
+      <p class="section-subtitle" data-i18n="mondossier.inputs_subtitle">Renseigne ta préfecture, ton statut, ta date de dépôt et ta date d'entretien. Tout se calcule localement dans ton navigateur.</p>
+      <div class="md-form-grid">
+        <div class="md-form-field">
+          <label class="md-form-label" data-i18n="mondossier.field_prefecture">Préfecture</label>
+          <div id="md-prefecture-container"></div>
+        </div>
+        <div class="md-form-field">
+          <label class="md-form-label" data-i18n="mondossier.field_statut">Statut interne ANEF</label>
+          <div id="md-statut-container"></div>
+        </div>
+        <div class="md-form-field">
+          <label class="md-form-label" data-i18n="mondossier.field_depot">Date de dépôt</label>
+          <input type="date" id="md-depot" class="md-date-input" />
+        </div>
+        <div class="md-form-field">
+          <label class="md-form-label">
+            <span data-i18n="mondossier.field_entretien">Date d'entretien</span>
+            <span class="md-tooltip" tabindex="0" data-i18n-attr="title:mondossier.entretien_tip" title="Date de ton entretien d'assimilation (étape 7). Sert d'ancre pour les statistiques post-entretien — voir A4 dans la FAQ.">ⓘ</span>
+          </label>
+          <input type="date" id="md-entretien" class="md-date-input" />
+        </div>
+        <div class="md-form-field">
+          <label class="md-form-label">
+            <span data-i18n="mondossier.field_entree_etape">Entrée à l'étape actuelle</span>
+            <span class="md-form-optional" data-i18n="mondossier.optional">(optionnel)</span>
+            <span class="md-tooltip" tabindex="0" data-i18n-attr="title:mondossier.entree_etape_tip" title="Date à laquelle tu es entré·e à ton étape actuelle. Permet de comparer ton temps à cette étape avec celui d'autres dossiers, en évitant le 'ping-pong' entre sous-statuts.">ⓘ</span>
+          </label>
+          <input type="date" id="md-entree-etape" class="md-date-input" />
         </div>
       </div>
     </div>

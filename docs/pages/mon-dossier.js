@@ -25,17 +25,20 @@
     summaries: [],
     snapshots: [],
     grouped: null,
-    cohortsByPrefStatut: null,  // Map<"pref|statut", number[]>
-    cohortsByStatut: null,      // Map<"statut", number[]>
-    cohortsByPrefEtape: null,   // Map<"pref|phase", number[]>
-    cohortsByEtape: null,       // Map<"phase", number[]>
-    prefectures: [],            // [{ key, label }]
+    cohortsByPrefStatut: null,
+    cohortsByStatut: null,
+    cohortsByPrefEtape: null,
+    cohortsByEtape: null,
+    prefectures: [],
     inputs: {
       prefecture: '',
       statut: '',
       dateDepot: '',
+      dateEntretien: '',       // NEW — used for entretien-bucketed analysis
       dateEntreeEtape: ''
-    }
+    },
+    // Sync banner state machine: pending → success/unavailable/no_data
+    syncState: 'pending'
   };
 
   document.addEventListener('DOMContentLoaded', async function() {
@@ -59,9 +62,20 @@
 
       initInputs();
       initMethodologyModal();
+      // Order matters: listenForExtensionPostMessage BEFORE hydrate so we
+      // catch the content script's message (it fires at document_idle and
+      // mon-dossier.js runs after DOMContentLoaded — but the page hash adds
+      // race risk; better to register the listener first).
+      listenForExtensionPostMessage();
+      armSyncTimeout();
       hydrateFromURL();
       hydrateFromStorage();
-      listenForExtensionPostMessage();
+      // Initial state: if URL/storage already populated all required inputs,
+      // we don't need to show "pending" — flip to no_data with a softer message.
+      if (state.syncState === 'pending' && state.inputs.prefecture && state.inputs.statut && state.inputs.dateDepot) {
+        // The user already had data locally; sync banner can flip to a quiet info.
+        // (We still leave the timeout armed in case extension fires shortly.)
+      }
       render();
     } catch (err) {
       loading.innerHTML = '<div class="error-msg"><p>'
@@ -221,12 +235,19 @@
 
     // Date inputs
     var depotInput = document.getElementById('md-depot');
+    var entretienInput = document.getElementById('md-entretien');
     var entreeInput = document.getElementById('md-entree-etape');
     var today = new Date().toISOString().slice(0, 10);
     depotInput.max = today;
+    entretienInput.max = today;
     entreeInput.max = today;
     depotInput.addEventListener('input', function() {
       state.inputs.dateDepot = depotInput.value;
+      persist();
+      render();
+    });
+    entretienInput.addEventListener('input', function() {
+      state.inputs.dateEntretien = entretienInput.value;
       persist();
       render();
     });
@@ -236,6 +257,7 @@
       render();
     });
     state._depotInput = depotInput;
+    state._entretienInput = entretienInput;
     state._entreeInput = entreeInput;
   }
 
@@ -244,14 +266,15 @@
     var pref = p.get('prefecture');
     var st = p.get('statut');
     var dep = p.get('depot');
+    var ent = p.get('entretien');
     var ee = p.get('entree-etape');
     if (pref) setPrefecture(pref);
     if (st) setStatut(String(st).toLowerCase());
     if (dep) setDate('depot', dep);
+    if (ent) setDate('entretien', ent);
     if (ee) setDate('entree-etape', ee);
     if (p.get('from') === 'extension') {
-      var banner = document.getElementById('from-extension-banner');
-      if (banner) banner.classList.remove('hidden');
+      setSyncState('success', { source: 'url-deeplink' });
     }
   }
 
@@ -264,6 +287,7 @@
       if (obj.prefecture) setPrefecture(obj.prefecture);
       if (obj.statut) setStatut(obj.statut);
       if (obj.dateDepot) setDate('depot', obj.dateDepot);
+      if (obj.dateEntretien) setDate('entretien', obj.dateEntretien);
       if (obj.dateEntreeEtape) setDate('entree-etape', obj.dateEntreeEtape);
     } catch (e) { /* ignore */ }
   }
@@ -272,13 +296,27 @@
     window.addEventListener('message', function(ev) {
       if (ev.source !== window) return;
       if (!ev.data || ev.data.source !== 'anef-statut-extension') return;
-      var d = ev.data.dossier || {};
+      console.log('[mon-dossier] received message from extension:', ev.data);
+      // Sentinel: presence of this message alone proves the extension is installed.
+      // Cancel the "no extension" timeout.
+      if (_syncPendingTimer) { clearTimeout(_syncPendingTimer); _syncPendingTimer = null; }
+      var d = ev.data.dossier;
+      if (!d || (!d.prefecture && !d.statut && !d.dateDepot)) {
+        // Extension found, but chrome.storage had no dossier yet — user
+        // hasn't visited their ANEF page since installing.
+        setSyncState('no_data');
+        return;
+      }
       if (d.prefecture) setPrefecture(d.prefecture);
       if (d.statut) setStatut(String(d.statut).toLowerCase());
       if (d.dateDepot) setDate('depot', d.dateDepot);
+      if (d.dateEntretien) setDate('entretien', d.dateEntretien);
       if (d.dateEntreeEtape) setDate('entree-etape', d.dateEntreeEtape);
-      var banner = document.getElementById('from-extension-banner');
-      if (banner) banner.classList.remove('hidden');
+      if (d.prefecture && d.statut && d.dateDepot) {
+        setSyncState('success');
+      } else {
+        setSyncState('no_data');
+      }
       render();
     });
   }
@@ -300,10 +338,53 @@
     if (which === 'depot') {
       state.inputs.dateDepot = v;
       if (state._depotInput) state._depotInput.value = v;
+    } else if (which === 'entretien') {
+      state.inputs.dateEntretien = v;
+      if (state._entretienInput) state._entretienInput.value = v;
     } else {
       state.inputs.dateEntreeEtape = v;
       if (state._entreeInput) state._entreeInput.value = v;
     }
+  }
+
+  // ─── Sync banner state machine ─────────────────────────────
+  // States:
+  //   pending      → blue, "looking for ANEF extension..."
+  //   success      → green, "Data filled from extension"
+  //   no_data      → grey, "Extension found, but no dossier data yet — visit your ANEF page first"
+  //   unavailable  → amber, "No ANEF extension detected — fill in manually OR install"
+  // The dashboard-sync.js content script posts a sentinel message even when
+  // it has no data, so we can distinguish "extension absent" from "extension
+  // present but no data". After 1.5s without any extension signal, we flip
+  // pending → unavailable.
+  function setSyncState(newState, meta) {
+    state.syncState = newState;
+    var banner = document.getElementById('md-sync-banner');
+    var icon = document.getElementById('md-sync-icon');
+    var text = document.getElementById('md-sync-text');
+    var btn = document.getElementById('md-sync-action');
+    if (!banner) return;
+    banner.className = 'md-sync-banner md-sync-' + newState.replace('_', '-');
+    var icons = { pending: '⏳', success: '✓', no_data: 'ℹ', unavailable: '⚠' };
+    if (icon) icon.textContent = icons[newState] || '';
+    if (text) text.textContent = ANEF.t('mondossier.sync_' + newState);
+    if (btn) {
+      if (newState === 'unavailable') {
+        btn.style.display = '';
+        btn.textContent = ANEF.t('mondossier.sync_install_btn');
+        btn.onclick = function() { window.open('guide.html#installation', '_blank'); };
+      } else {
+        btn.style.display = 'none';
+      }
+    }
+  }
+
+  var _syncPendingTimer = null;
+  function armSyncTimeout() {
+    if (_syncPendingTimer) return;
+    _syncPendingTimer = setTimeout(function() {
+      if (state.syncState === 'pending') setSyncState('unavailable');
+    }, 1500);
   }
   function persist() {
     try { localStorage.setItem('anef-mondossier', JSON.stringify(state.inputs)); }
