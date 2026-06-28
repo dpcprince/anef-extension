@@ -1,12 +1,30 @@
 # Fork changes — anef-statut fork of Letranger-dev/anef-extension
 
-Fork of [Letranger-dev/anef-extension](https://github.com/Letranger-dev/anef-extension) cloned 28 June 2026 from `main`.
+Fork of [Letranger-dev/anef-extension](https://github.com/Letranger-dev/anef-extension) cloned 28 June 2026 from `main`. Lives at [github.com/dpcprince/anef-extension](https://github.com/dpcprince/anef-extension) with the dashboard deployed at [dpcprince.github.io/anef-extension/](https://dpcprince.github.io/anef-extension/).
 
 The dashboard lives in `docs/`, served as GitHub Pages from that folder. The extension lives in the repo root. Both are modified in-place to keep diffs PR-friendly.
 
 ## Philosophy
 
 Same UI, same architecture, same style. Improvements added on top, bugs fixed in place. Anything we'd PR back is a small surgical diff; anything that materially changes the editorial line is documented as our fork's value-add.
+
+## Data flow
+
+The fork **reads from upstream's Supabase pool** but does **not write back** — see [Data architecture](#data-architecture) below for the rationale and the path to enable contribution if/when desired.
+
+- **Read** (dashboard + extension popup comparison card): hardcoded `SUPABASE_URL` + `SUPABASE_ANON_KEY` in `docs/shared/data.js` and `lib/constants.js` point at the upstream project (`okogtnzuuhdwogvdnitm.supabase.co`). Same public anon key the upstream deployed dashboard ships. RLS protects the data.
+- **Write** (extension's anonymous-stats path → Edge Function): disabled. `lib/constants.js` keeps `SUPABASE_FUNCTION_URL` + `SUPABASE_EDGE_KEY` as placeholders; `lib/anonymous-stats.js` short-circuits with a clear error when the placeholders are detected.
+- **No parallel dataset**: the dashboard fetches live from Supabase on every load (5-min sessionStorage cache). No `docs/data/snapshots.json` checked in, no CI snapshot job.
+
+## Data architecture
+
+The fork's value-add is the analytics surface (Pass 4-9 — competing-risks math, Mon dossier rebuild, process-overview KPIs). The underlying data pool has no value in being fragmented: more dossiers from one community = stronger statistics for everyone.
+
+To contribute data to that pool, users should install the official extension from the Chrome Web Store ([Letranger-dev/anef-extension on CWS](https://chromewebstore.google.com/detail/anef-status-tracker/icnpklneeaiffilemaflccdejefpehek)). That extension's anonymous-stats path holds the `X-Extension-Key` shared secret that upstream's `submit-snapshot` Edge Function requires. A side-loaded fork cannot legitimately push without it.
+
+If the project ever justifies official write access from this fork, the path is:
+1. Ask Letranger-dev to share the Edge Function credentials, OR
+2. Set up a parallel Supabase project + Edge Function and split the panel (defeats the "one pool" principle, only do this if upstream rejects coordination).
 
 ## Changes summary
 
