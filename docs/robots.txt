@@ -8,4 +8,4 @@ Disallow: /
 User-agent: archive.org_bot
 Disallow: /
 
-Sitemap: https://letranger-dev.github.io/anef-extension/sitemap.xml
+Sitemap: https://dpcprince.github.io/anef-extension/sitemap.xml
