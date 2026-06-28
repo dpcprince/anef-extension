@@ -67,7 +67,7 @@
       '<ul style="margin:0.5rem 0 0.5rem 1.5rem;list-style:disc">' +
       '<li><strong>decision_negative_en_delais_recours</strong> ({n_classic} dossiers) — refus de la préfecture, dans le délai de recours de 2 mois. C\'est le refus « classique ».</li>' +
       '<li><strong>controle_demande_notifiee</strong> ({n_sdanf} dossiers) — refus notifié par la SDANF/ministère, typiquement après que la préfecture avait approuvé.</li>' +
-      '<li><strong>css_notifie</strong> ({n_css} dossiers) — refus pour irrégularité d\'état civil (vérification par le SCEC de Nantes).</li>' +
+      '<li><strong>css_notifie</strong> ({n_css} dossiers) — Classement Sans Suite notifié. La préfecture clôt le dossier sans le juger sur le fond, généralement pour motif procédural (pièces non fournies dans les délais après mise en demeure, désistement présumé, etc.). Distinct d\'un refus motivé : tu peux contester ou redéposer un dossier complet.</li>' +
       '<li><strong>decision_notifiee</strong> ({n_post_rapo} dossiers) — notification finale, presque toujours après un RAPO. C\'est la décision « après recours ».</li>' +
       '</ul>' +
       '<p style="margin-top:0.5rem">Chaque type implique des motifs et des suites différentes. Si tu reçois un de ces statuts, la notification papier détaille le motif et indique le délai de recours.</p>',
@@ -87,7 +87,7 @@
       '<tr><td style="padding:0.2rem 0.7rem">6–12 mois</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_6_12_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
       '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 mois</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
       '</tbody></table>' +
-      '<p style="margin-top:0.5rem">Lecture pratique : si tu approches d\'un an post-entretien sans décision, le risque relatif augmente — mais reste minoritaire. La majorité des dossiers dans cette tranche progressent quand même. <strong>Signal faible</strong>, à pondérer avec l\'absence d\'autre signe explicite (refus, mise en demeure, CSS).</p>' +
+      '<p style="margin-top:0.5rem">Lecture pratique : si tu approches d\'un an post-entretien sans décision, le risque relatif augmente — mais reste minoritaire. La majorité des dossiers dans cette tranche progressent quand même. <strong>Signal faible</strong>, à pondérer avec l\'absence d\'autre indicateur explicite (mise en demeure non régularisée, statut <abbr title="Classement Sans Suite — clôture procédurale du dossier par la préfecture (pièces manquantes, désistement présumé, etc.)" style="cursor:help;border-bottom:1px dotted">CSS</abbr>, demande de complément répétée).</p>' +
       '<p style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-dim)">Cohorte : {eb_n} dossiers avec une date d\'entretien capturée et un événement post-entretien observé. Les effectifs au-delà de 12 mois sont faibles ({eb_12_24_n}) — chiffre indicatif, pas statistiquement significatif.</p>',
 
     'faq.A5_prefecture_matters.q': 'Ma préfecture a-t-elle un taux de refus particulièrement élevé ?',
@@ -273,7 +273,7 @@
       '<ul style="margin:0.5rem 0 0.5rem 1.5rem;list-style:disc">' +
       '<li><strong>decision_negative_en_delais_recours</strong> ({n_classic} cases) — prefecture refusal, within the 2-month appeal window. The "classic" refusal.</li>' +
       '<li><strong>controle_demande_notifiee</strong> ({n_sdanf} cases) — refusal notified by SDANF/ministry, typically after the prefecture had approved.</li>' +
-      '<li><strong>css_notifie</strong> ({n_css} cases) — refusal for civil-status irregularity (verification by the SCEC in Nantes).</li>' +
+      '<li><strong>css_notifie</strong> ({n_css} cases) — Classement Sans Suite (file closed without a decision on the merits). The prefecture drops the case for procedural reasons (documents not provided after a formal notice, presumed withdrawal, etc.). Distinct from a reasoned refusal: you can contest or refile a complete application.</li>' +
       '<li><strong>decision_notifiee</strong> ({n_post_rapo} cases) — final notification, almost always after a RAPO. The "post-appeal" decision.</li>' +
       '</ul>' +
       '<p style="margin-top:0.5rem">Each type implies different grounds and next steps. If you receive one of these statuses, the paper notification details the grounds and indicates the appeal deadline.</p>',
@@ -293,7 +293,7 @@
       '<tr><td style="padding:0.2rem 0.7rem">6–12 months</td><td style="text-align:right;padding:0.2rem 0.7rem"><strong>{eb_6_12_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_6_12_n}</td></tr>' +
       '<tr><td style="padding:0.2rem 0.7rem"><strong>12–24 months</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:#ef4444"><strong>{eb_12_24_pct}%</strong></td><td style="text-align:right;padding:0.2rem 0.7rem;color:var(--text-dim)">{eb_12_24_n}</td></tr>' +
       '</tbody></table>' +
-      '<p style="margin-top:0.5rem">Practical reading: if you\'re approaching one year post-interview without a decision, the relative risk rises — but it remains minority. The majority in this bracket still progress favourably. <strong>Weak signal</strong>, to weight against the absence of any explicit negative sign.</p>' +
+      '<p style="margin-top:0.5rem">Practical reading: if you\'re approaching one year post-interview without a decision, the relative risk rises — but it remains minority. The majority in this bracket still progress favourably. <strong>Weak signal</strong>, to weight against the absence of any other explicit indicator (unaddressed formal notice, <abbr title="Classement Sans Suite — procedural closure of the case by the prefecture (missing documents, presumed withdrawal, etc.)" style="cursor:help;border-bottom:1px dotted">CSS</abbr> status, repeated supplement requests).</p>' +
       '<p style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-dim)">Cohort: {eb_n} cases with captured interview date and an observed post-interview event. Sample beyond 12 months is small ({eb_12_24_n}) — indicative figure, not statistically significant.</p>',
 
     'faq.A5_prefecture_matters.q': 'Does my prefecture have an unusually high refusal rate?',
@@ -456,7 +456,7 @@
       '<ul style="margin:0.5rem 0 0.5rem 1.5rem;list-style:disc"><li><strong>Etapa 8 (Decisión prefectura)</strong>: {pct_from_et8}% de las denegaciones clásicas ({n_classic} expedientes) vienen directamente de esta etapa. Mediana desde depósito: {med_classic_fmt}.</li><li><strong>Etapa 10 (Preparación decreto)</strong>: {n_sdanf} expedientes denegados por el ministerio después que la prefectura había aprobado. Mediana: {med_sdanf_fmt}. Total denegaciones <strong>después de etapa 10</strong>: {n_late}.</li></ul>',
     'faq.A3_rejection_types.q': '¿Cuáles son los diferentes tipos de denegación?',
     'faq.A3_rejection_types.a':
-      '<p>En el panel: <strong>decision_negative_en_delais_recours</strong> ({n_classic}) — denegación prefectura; <strong>controle_demande_notifiee</strong> ({n_sdanf}) — denegación SDANF/ministerio; <strong>css_notifie</strong> ({n_css}) — irregularidad de estado civil; <strong>decision_notifiee</strong> ({n_post_rapo}) — notificación tras RAPO.</p>',
+      '<p>En el panel: <strong>decision_negative_en_delais_recours</strong> ({n_classic}) — denegación prefectura; <strong>controle_demande_notifiee</strong> ({n_sdanf}) — denegación SDANF/ministerio; <strong>css_notifie</strong> ({n_css}) — Classement Sans Suite (cierre procedimental del expediente, por documentos no aportados, desistimiento presunto, etc., distinto de una denegación motivada); <strong>decision_notifiee</strong> ({n_post_rapo}) — notificación tras RAPO.</p>',
     'faq.A4_long_wait_means_neg.q': '¿Un plazo largo significa que voy a ser denegado?',
     'faq.A4_long_wait_means_neg.a':
       '<p><strong>No el plazo total — pero una larga espera <em>después de la entrevista</em> puede ser una señal débil.</strong></p>' +
@@ -556,7 +556,7 @@
       '<p>نادرًا قبل المقابلة. لحظتان مهيمنتان: <strong>المرحلة 8 (قرار المحافظة)</strong>: {pct_from_et8}% من حالات الرفض الكلاسيكية ({n_classic} ملف)، الوسيط {med_classic_fmt}. <strong>المرحلة 10 (تحضير المرسوم)</strong>: {n_sdanf} ملف رُفضوا متأخرًا، الوسيط {med_sdanf_fmt}. مجموع الرفض <strong>بعد المرحلة 10</strong>: {n_late}.</p>',
     'faq.A3_rejection_types.q': 'ما الأنواع المختلفة للرفض؟',
     'faq.A3_rejection_types.a':
-      '<p>في اللوحة: <strong>decision_negative_en_delais_recours</strong> ({n_classic}) — رفض المحافظة؛ <strong>controle_demande_notifiee</strong> ({n_sdanf}) — رفض الوزارة؛ <strong>css_notifie</strong> ({n_css}) — مخالفة الحالة المدنية؛ <strong>decision_notifiee</strong> ({n_post_rapo}) — إشعار بعد RAPO.</p>',
+      '<p>في اللوحة: <strong>decision_negative_en_delais_recours</strong> ({n_classic}) — رفض المحافظة؛ <strong>controle_demande_notifiee</strong> ({n_sdanf}) — رفض الوزارة؛ <strong>css_notifie</strong> ({n_css}) — Classement Sans Suite (إغلاق إجرائي للملف من قبل المحافظة بسبب عدم تقديم الوثائق أو الانسحاب المفترض، وما إلى ذلك — مختلف عن الرفض المُسبَّب)؛ <strong>decision_notifiee</strong> ({n_post_rapo}) — إشعار بعد RAPO.</p>',
     'faq.A4_long_wait_means_neg.q': 'هل المهلة الطويلة تعني أنني سأُرفض؟',
     'faq.A4_long_wait_means_neg.a':
       '<p><strong>ليس المهلة الإجمالية — لكن الانتظار الطويل <em>بعد المقابلة</em> قد يكون إشارة ضعيفة.</strong></p>' +
@@ -655,7 +655,7 @@
       '<p>几乎从不在面谈之前。两个主导时刻：<strong>阶段 8（省决定）</strong>：经典拒绝的 {pct_from_et8}%（{n_classic} 件）直接来自此阶段，中位 {med_classic_fmt}。<strong>阶段 10（法令准备）</strong>：{n_sdanf} 件案卷被部级延迟拒绝，中位 {med_sdanf_fmt}。<strong>阶段 10 之后</strong>的总拒绝：{n_late}。</p>',
     'faq.A3_rejection_types.q': '有哪些不同类型的拒绝？',
     'faq.A3_rejection_types.a':
-      '<p>面板中：<strong>decision_negative_en_delais_recours</strong>（{n_classic}）— 省拒绝；<strong>controle_demande_notifiee</strong>（{n_sdanf}）— 部级拒绝；<strong>css_notifie</strong>（{n_css}）— 民事身份不合规；<strong>decision_notifiee</strong>（{n_post_rapo}）— RAPO 后通知。</p>',
+      '<p>面板中：<strong>decision_negative_en_delais_recours</strong>（{n_classic}）— 省拒绝；<strong>controle_demande_notifiee</strong>（{n_sdanf}）— 部级拒绝；<strong>css_notifie</strong>（{n_css}）— Classement Sans Suite（省政府基于程序原因关闭案卷：材料未在期限内提供、推定撤回等，与基于实质审查的拒绝不同）；<strong>decision_notifiee</strong>（{n_post_rapo}）— RAPO 后通知。</p>',
     'faq.A4_long_wait_means_neg.q': '长时间等待意味着我会被拒绝吗？',
     'faq.A4_long_wait_means_neg.a':
       '<p><strong>不是总等待 — 但<em>面谈后</em>的长时间等待可能是一个弱信号。</strong></p>' +
