@@ -9,6 +9,7 @@
 
 import { getStatusExplanation, formatDuration, formatDate, formatDateShort, formatTimestamp, daysSince, daysBetween, isPositiveStatus, isNegativeStatus, isClosedStatus, formatSubStep, STEP_DEFAULTS } from '../lib/status-parser.js';
 import { downloadLogs } from '../lib/logger.js';
+import { DASHBOARD_BASE_URL, DASHBOARD_MON_DOSSIER_PATH } from '../lib/constants.js';
 // ─────────────────────────────────────────────────────────────
 // Citations sur la patience
 // ─────────────────────────────────────────────────────────────
@@ -90,6 +91,26 @@ function stopQuoteCarousel() {
 let views = {};
 let elements = {};
 
+/** anef-statut fork: return the history array for the currently viewed dossier.
+ *  The top-level `chrome.storage.local.history` holds the primary's history;
+ *  secondaries store their history at `chrome.storage.local.dossiers[id].history`.
+ *  Without this helper, every history walk reads the primary's even when the
+ *  user is viewing a secondary — wrong "depuis" dates and wrong parcours stats.
+ */
+async function loadActiveHistory() {
+  try {
+    const data = await chrome.storage.local.get(['history', 'dossiers', 'primaryDossierId']);
+    const isViewingSecondary = _activeViewDossierId
+      && _activeViewDossierId !== data.primaryDossierId;
+    if (isViewingSecondary && data.dossiers?.[_activeViewDossierId]?.history) {
+      return data.dossiers[_activeViewDossierId].history;
+    }
+    return data.history || [];
+  } catch (_e) {
+    return [];
+  }
+}
+
 function initializeElements() {
   views = {
     maintenance: document.getElementById('view-maintenance'),
@@ -107,6 +128,10 @@ function initializeElements() {
     btnCheck: document.getElementById('btn-check'),
     btnRefresh: document.getElementById('btn-refresh'),
     btnShare: document.getElementById('btn-share'),
+    btnDashboard: document.getElementById('btn-dashboard'),
+    mdCompareCard: document.getElementById('md-compare-card'),
+    mdCompareBody: document.getElementById('md-compare-body'),
+    mdCompareDeeplink: document.getElementById('md-compare-deeplink'),
     btnSettings: document.getElementById('btn-settings'),
     btnPrivacy: document.getElementById('btn-privacy'),
 
@@ -637,7 +662,7 @@ function displayStatus(statusData, apiData, lastCheck) {
   if (elements.statusCode) elements.statusCode.textContent = statut;
   if (elements.statusDescription) elements.statusDescription.textContent = statusInfo.description;
 
-  // Date du statut : chercher la plus ancienne (manual ou auto)
+  // Date du statut : chercher la plus ancienne (manual, historique, ou API)
   if (elements.statusDate) {
     (async () => {
       // stepDates (rectification manuelle) a priorité absolue
@@ -652,8 +677,26 @@ function displayStatus(statusData, apiData, lastCheck) {
         // Date rectifiée/manuelle → fait foi
         earliestDate = manualEntry.date_statut;
       } else {
-        // Pas de rectification → utiliser la date ANEF
+        // anef-statut fork: ANEF's date_statut resets when the status code
+        // re-appears (ping-pong). Walk local history for the earliest known
+        // entry to the same statut and pick the smaller of the two. Same
+        // logic as displayTemporalStats below — kept in sync to avoid the
+        // top-card and stats-card showing different "depuis" values.
         earliestDate = date_statut;
+        try {
+          const history = await loadActiveHistory();
+          const currentLower = (statut || '').toLowerCase();
+          let earliestTs = earliestDate ? new Date(earliestDate).getTime() : Infinity;
+          for (const entry of history) {
+            if ((entry.statut || '').toLowerCase() !== currentLower) continue;
+            if (!entry.date_statut) continue;
+            const ts = new Date(entry.date_statut).getTime();
+            if (!isNaN(ts) && ts < earliestTs) {
+              earliestTs = ts;
+              earliestDate = entry.date_statut;
+            }
+          }
+        } catch (_e) { /* storage unavailable, keep API value */ }
       }
 
       if (earliestDate) {
@@ -711,6 +754,194 @@ function displayStatus(statusData, apiData, lastCheck) {
   displayClosureBanner(statusData, apiData, closed);
   displayTemporalStats(statusData, apiData, closed);
   displayDetails(statusData, apiData);
+  // anef-statut fork: wire the dashboard deep-link with current dossier context.
+  updateDashboardLink(statusData, apiData);
+  // anef-statut fork: render the inline cohort comparison (best-effort, async).
+  renderCohortComparison(statusData, apiData, closed);
+}
+
+/** anef-statut fork: fetch (or read from cache) the dashboard's snapshots.json,
+ *  build per-(préfecture × statut) cohort indexes, compute the user's percentile
+ *  at their current statut, and render a 3-line summary inside the popup.
+ *
+ *  Cache key: `mdCohortCache` in chrome.storage.local. TTL: 24h.
+ *  Cached shape: { generated_at, byKey: { "<pref>|<statut>": [days_since_depot, …] } }
+ */
+const MD_COMPARE_TTL_MS = 24 * 60 * 60 * 1000;
+
+async function renderCohortComparison(statusData, apiData, closed) {
+  const card = elements.mdCompareCard;
+  const body = elements.mdCompareBody;
+  const deeplink = elements.mdCompareDeeplink;
+  if (!card || !body) return;
+
+  const statut = (statusData?.statut || '').toLowerCase();
+  const prefRaw = apiData?.prefecture || '';
+  const dateDepot = apiData?.dateDepot || apiData?.rawTaxePayee?.date_consommation;
+
+  // Hide for closed procedures and incomplete data
+  if (closed || !statut || !prefRaw || !dateDepot) {
+    card.classList.add('hidden');
+    return;
+  }
+
+  // The deeplink mirrors the dashboard button's URL but lives inside the card
+  if (deeplink && elements.btnDashboard) deeplink.href = elements.btnDashboard.href;
+
+  card.classList.remove('hidden');
+  body.innerHTML = '<p class="md-compare-loading">Chargement de la cohorte…</p>';
+
+  try {
+    const cohorts = await loadCohortIndex();
+    const prefCanon = canonicalisePrefecture(prefRaw);
+    const daysSinceDepot = Math.floor((Date.now() - new Date(dateDepot).getTime()) / 86400000);
+    if (daysSinceDepot < 0) { card.classList.add('hidden'); return; }
+
+    // Cohort lookup: prefecture × statut first, fall back to national (statut alone)
+    const localKey = prefCanon + '|' + statut;
+    const local = cohorts.byKey[localKey];
+    const national = cohorts.byStatut[statut];
+    const cohort = (local && local.length >= 10) ? local
+                 : (national && national.length >= 20) ? national
+                 : null;
+    const isPref = (cohort && cohort === local);
+
+    if (!cohort) {
+      body.innerHTML = '<p class="md-compare-empty">Cohorte trop petite pour ce couple préfecture × statut.</p>';
+      return;
+    }
+
+    // Percentile rank: where does daysSinceDepot fall in the cohort?
+    let lo = 0, hi = cohort.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >>> 1;
+      if (cohort[mid] < daysSinceDepot) lo = mid + 1; else hi = mid;
+    }
+    const pct = Math.round((lo / cohort.length) * 100);
+    const medianDays = cohort[Math.floor(cohort.length / 2)];
+
+    body.innerHTML =
+      '<span class="md-compare-pct">' + pct + 'e percentile</span>' +
+      '<span>' +
+        (isPref ? `Dans ${escapeHtml(prefRaw)} : ${cohort.length} dossiers comparés.` : `National (${cohort.length} dossiers — cohorte préfecture < 10).`) +
+      '</span>' +
+      '<span class="md-compare-sub">Médiane cohorte : ' + formatDuration(medianDays) + ' depuis dépôt à ce statut.</span>';
+  } catch (e) {
+    console.warn('[Popup] cohort comparison failed:', e);
+    body.innerHTML = '<p class="md-compare-empty">Comparaison indisponible (réseau ?).</p>';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function canonicalisePrefecture(p) {
+  if (!p) return null;
+  return String(p)
+    .replace(/^Pr[ée]fecture\s+(de\s+la|du|des|de\s+l['’]|de|d['’])\s*/i, '')
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/['’]/g, "'");
+}
+
+/** Load the cohort index, building it lazily from the public snapshots.json
+ *  on first call. Cached in chrome.storage.local for MD_COMPARE_TTL_MS. */
+async function loadCohortIndex() {
+  // Read cache first
+  try {
+    const c = await chrome.storage.local.get('mdCohortCache');
+    const cache = c.mdCohortCache;
+    if (cache && cache.generated_at && (Date.now() - cache.generated_at) < MD_COMPARE_TTL_MS) {
+      return cache;
+    }
+  } catch (_e) { /* ignore */ }
+
+  // Build from fresh snapshots
+  const url = DASHBOARD_BASE_URL + '/data/snapshots.json';
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const snaps = await res.json();
+
+  const byDossier = new Map();
+  for (const s of snaps) {
+    const pid = s.public_id;
+    if (!pid) continue;
+    if (!byDossier.has(pid)) byDossier.set(pid, []);
+    byDossier.get(pid).push(s);
+  }
+  for (const arr of byDossier.values()) {
+    arr.sort((a, b) => (a.checked_at || '').localeCompare(b.checked_at || ''));
+  }
+
+  const byKey = {};
+  const byStatut = {};
+  byDossier.forEach(arr => {
+    const last = arr[arr.length - 1];
+    const depot = last.date_depot;
+    if (!depot) return;
+    const pref = canonicalisePrefecture(last.prefecture);
+    const seen = {};
+    for (const s of arr) {
+      const st = (s.statut || '').toLowerCase();
+      if (!st || seen[st]) continue;
+      seen[st] = true;
+      const d = Math.floor((new Date(s.date_statut).getTime() - new Date(depot).getTime()) / 86400000);
+      if (!Number.isFinite(d) || d < 0) continue;
+      if (pref) {
+        const k = pref + '|' + st;
+        (byKey[k] || (byKey[k] = [])).push(d);
+      }
+      (byStatut[st] || (byStatut[st] = [])).push(d);
+    }
+  });
+  // Sort ascending for binary search
+  Object.keys(byKey).forEach(k => byKey[k].sort((a, b) => a - b));
+  Object.keys(byStatut).forEach(k => byStatut[k].sort((a, b) => a - b));
+
+  const cache = { generated_at: Date.now(), byKey, byStatut };
+  try { await chrome.storage.local.set({ mdCohortCache: cache }); } catch (_e) {}
+  return cache;
+}
+
+/** anef-statut fork: build the deep-link URL to the dashboard's /mon-dossier
+ *  page, passing the user's current data so the form is pre-filled.
+ *
+ *  Contract documented at: https://github.com/<user>/anef-statut/dashboard
+ *  Query params:
+ *    prefecture, statut, depot, entree-etape, from=extension
+ */
+function updateDashboardLink(statusData, apiData) {
+  if (!elements.btnDashboard) return;
+  // anef-statut fork: dashboard host is configurable via lib/constants.js.
+  // Override at build time or by patching the constants for a different fork.
+  const base = DASHBOARD_BASE_URL + DASHBOARD_MON_DOSSIER_PATH;
+  const params = new URLSearchParams({ from: 'extension' });
+  const dateDepot = apiData?.dateDepot || apiData?.rawTaxePayee?.date_consommation;
+  if (dateDepot) params.set('depot', String(dateDepot).slice(0, 10));
+  if (statusData?.statut) params.set('statut', String(statusData.statut).toUpperCase());
+  if (apiData?.prefecture) {
+    // Canonicalise client-side too — strip "Préfecture de/du/des/d'" prefix and lowercase.
+    // \s* at the end (not \s+) so apostrophe-suffix connectors like
+    // "Préfecture de l'Eure" are also stripped (no whitespace follows the apostrophe).
+    const canon = String(apiData.prefecture)
+      .replace(/^Pr[ée]fecture\s+(de\s+la|du|des|de\s+l['’]|de|d['’])\s*/i, '')
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[''’]/g, "'");
+    params.set('prefecture', canon);
+  }
+  // If we have an interview date and the dossier is in étape 8 (Décision préfecture),
+  // the interview is the natural entry-into-étape anchor.
+  const dateEntretien = apiData?.dateEntretien || apiData?.rawEntretien?.date_rdv;
+  // statusData doesn't carry `etape`; derive from the statut code via the
+  // shared explanations map. Without this, the check `statusData?.etape === 8`
+  // is always false (undefined !== 8) and the entree-etape param is never set.
+  const explanation = statusData?.statut ? getStatusExplanation(statusData.statut) : null;
+  if (dateEntretien && explanation?.etape === 8) {
+    params.set('entree-etape', String(dateEntretien).slice(0, 10));
+  }
+  elements.btnDashboard.href = `${base}?${params.toString()}`;
 }
 
 /** Affiche la bannière de clôture quand la procédure est terminée (décret publié).
@@ -754,9 +985,15 @@ function displayClosureBanner(statusData, apiData, closed) {
 }
 
 /** Affiche les statistiques temporelles */
-function displayTemporalStats(statusData, apiData, closed = false) {
+async function displayTemporalStats(statusData, apiData, closed = false) {
   const dateDepot = apiData?.dateDepot || apiData?.rawTaxePayee?.date_consommation;
   const dateEntretien = apiData?.dateEntretien || apiData?.rawEntretien?.date_rdv;
+
+  // anef-statut fork: load history (active dossier — primary OR secondary)
+  // so we can fix the "Statut depuis" bug — ANEF resets date_statut on status
+  // re-entry, so consult local history for the earliest known date at the
+  // current status code (more truthful).
+  const history = await loadActiveHistory();
 
   // Depuis le dépôt (figé à la date du décret si la procédure est terminée)
   if (dateDepot && elements.statDepot) {
@@ -790,11 +1027,38 @@ function displayTemporalStats(statusData, apiData, closed = false) {
   }
 
   // Âge du statut actuel
+  // anef-statut fork bug fix: the original code displayed daysSince(date_statut)
+  // where date_statut is what the ANEF API returns. That field resets to the
+  // most recent entry timestamp whenever the same status code re-appears (e.g.
+  // ping-pong PROP_DECISION_PREF_A_EFFECTUER → _A_VALIDER → _A_EFFECTUER).
+  // We fix this by walking the local history and using the earliest known
+  // date_statut for the current status code — which gives the user the true
+  // cumulative time at this status.
   if (statusData?.date_statut && elements.statStatutAge) {
-    const days = daysSince(statusData.date_statut);
+    const currentStatut = String(statusData.statut || '').toLowerCase();
+    let earliest = statusData.date_statut;
+    let earliestTs = new Date(statusData.date_statut).getTime();
+    for (const h of history) {
+      if (String(h.statut || '').toLowerCase() !== currentStatut) continue;
+      if (!h.date_statut) continue;
+      const ts = new Date(h.date_statut).getTime();
+      if (!isNaN(ts) && ts < earliestTs) {
+        earliestTs = ts;
+        earliest = h.date_statut;
+      }
+    }
+    const days = daysSince(earliest);
     elements.statStatutAgeValue.textContent = formatDuration(days);
-    elements.statStatutAgeDate.textContent = formatDate(statusData.date_statut, true);
+    elements.statStatutAgeDate.textContent = formatDate(earliest, true);
     elements.statStatutAge.classList.remove('hidden');
+    // Annotate: if earliest date came from history, hint visually with a title.
+    if (earliest !== statusData.date_statut) {
+      elements.statStatutAge.title =
+        `L'ANEF affiche le ${formatDate(statusData.date_statut, true)} ` +
+        `(début du spell actuel), mais notre historique local indique que vous ` +
+        `êtes à ce statut depuis le ${formatDate(earliest, true)} ` +
+        `(temps cumulé sur tous les passages).`;
+    }
   } else if (elements.statStatutAge) {
     elements.statStatutAge.classList.add('hidden');
   }
@@ -1108,8 +1372,8 @@ async function shareStatusText() {
     }
 
     // Historique des étapes traversées (stepDates + history + apiData)
-    const histData = await chrome.storage.local.get('history');
-    const history = histData.history || [];
+    // anef-statut fork: use active dossier's history (primary OR secondary)
+    const history = await loadActiveHistory();
 
     // Fusionner toutes les sources de dates par statut
     const dateByStatut = {};
@@ -1209,8 +1473,8 @@ async function checkStepDatesAlert() {
     const currentRang = currentInfo.rang;
 
     // Statuts couverts (auto + manual), normalisés en minuscules
-    const historyData = await chrome.storage.local.get('history');
-    const history = historyData.history || [];
+    // anef-statut fork: use active dossier's history (primary OR secondary)
+    const history = await loadActiveHistory();
     const stepDatesData = await chrome.storage.local.get('stepDates');
     const stepDates = stepDatesData.stepDates || [];
 

@@ -309,6 +309,26 @@
         </button>
       </div>
 
+      <!-- anef-statut fork: inline cohort comparison (computed locally from
+           the dashboard's snapshots.json, cached in chrome.storage with 24h TTL) -->
+      <div id="md-compare-card" class="md-compare-card hidden">
+        <div class="md-compare-head">
+          <span class="md-compare-icon">📊</span>
+          <span class="md-compare-title">Dans ta cohorte</span>
+        </div>
+        <div id="md-compare-body" class="md-compare-body">
+          <p class="md-compare-loading">Chargement de la cohorte…</p>
+        </div>
+        <a id="md-compare-deeplink" class="md-compare-deeplink" href="#" target="_blank" rel="noopener">Voir tout sur anef-statut →</a>
+      </div>
+
+      <!-- anef-statut dashboard deep-link (fallback when comparison hidden) -->
+      <a id="btn-dashboard" class="dashboard-link" href="#" target="_blank" rel="noopener" title="Comparer mon dossier avec les autres dossiers de ma préfecture">
+        <span class="dashboard-link-icon">📊</span>
+        <span class="dashboard-link-text">Comparer mon dossier sur <strong>anef-statut</strong></span>
+        <span class="dashboard-link-arrow">→</span>
+      </a>
+
       <!-- Actions spécifiques aux dossiers secondaires (cachées par défaut) -->
       <div id="secondary-actions" class="secondary-actions hidden">
         <div class="secondary-actions-header">

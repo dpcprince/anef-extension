@@ -257,15 +257,17 @@
         <div class="settings-group">
           <h3>Statistiques communautaires</h3>
 
-          <div class="credential-warning">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            <span>Les statistiques anonymes sont partag&eacute;es automatiquement pour alimenter les donn&eacute;es communautaires. Donn&eacute;es envoy&eacute;es : &eacute;tape, dates (jour uniquement), pr&eacute;fecture. Votre num&eacute;ro de dossier est remplac&eacute; par un hash irr&eacute;versible.
-            <a href="https://letranger-dev.github.io/anef-extension/" target="_blank">Voir les statistiques</a></span>
-          </div>
+          <!-- anef-statut fork: real opt-out toggle. The guide page promises
+               "Désactivable à tout moment — Un simple clic dans les paramètres"
+               but upstream v2.7.0 ships only an informational banner. This
+               toggle delivers on that promise. -->
+          <label class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Partager mes statistiques anonymes</span>
+              <span class="setting-description">Étape, dates (jour uniquement), préfecture. Numéro de dossier remplacé par un hash SHA-256 irréversible. <a href="https://letranger-dev.github.io/anef-extension/" target="_blank">Voir les statistiques</a></span>
+            </div>
+            <input type="checkbox" id="setting-anonymous-stats" class="toggle">
+          </label>
         </div>
 
         <div class="settings-group">

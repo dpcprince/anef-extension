@@ -305,6 +305,84 @@ body {
   transition: background 0.2s;
 }
 
+/* anef-statut fork: inline cohort comparison card */
+.md-compare-card {
+  background: #f0f6fb;
+  border: 1px solid #aac4dd;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.md-compare-card.hidden { display: none; }
+.md-compare-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #0d4f8b;
+}
+.md-compare-body {
+  font-size: 0.85rem;
+  color: #1a3a5b;
+  line-height: 1.4;
+}
+.md-compare-body .md-compare-pct {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0d4f8b;
+  margin-bottom: 2px;
+}
+.md-compare-body .md-compare-sub {
+  display: block;
+  font-size: 0.78rem;
+  color: #4a6884;
+  margin-top: 4px;
+}
+.md-compare-loading,
+.md-compare-empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #4a6884;
+  font-style: italic;
+}
+.md-compare-deeplink {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: #0d4f8b;
+  text-decoration: none;
+  font-weight: 600;
+}
+.md-compare-deeplink:hover { text-decoration: underline; }
+
+/* anef-statut fork: dashboard deep-link */
+.dashboard-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  background: #f0f6fb;
+  border: 1px solid #aac4dd;
+  color: #0d4f8b;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+.dashboard-link:hover {
+  background: #e0eef8;
+  border-color: #0d4f8b;
+  text-decoration: none;
+}
+.dashboard-link-icon { font-size: 1rem; }
+.dashboard-link-text { flex: 1; }
+.dashboard-link-text strong { color: #0d4f8b; font-weight: 600; }
+.dashboard-link-arrow { color: #0d4f8b; }
+
 .actions {
   display: flex;
   gap: 10px;

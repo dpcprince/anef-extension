@@ -41,6 +41,7 @@ function initializeElements() {
 
     // Paramètres
     settingNotifications: document.getElementById('setting-notifications'),
+    settingAnonymousStats: document.getElementById('setting-anonymous-stats'),
     settingHistoryLimit: document.getElementById('setting-history-limit'),
     btnSaveSettings: document.getElementById('btn-save-settings'),
     btnResetSettings: document.getElementById('btn-reset-settings'),
@@ -677,14 +678,23 @@ async function loadSettings() {
   if (elements.settingAutoCheck) {
     elements.settingAutoCheck.checked = settings.autoCheckEnabled;
   }
+  // anef-statut fork: hydrate the new anonymous-stats toggle
+  if (elements.settingAnonymousStats) {
+    elements.settingAnonymousStats.checked = settings.anonymousStatsEnabled !== false;
+  }
 }
 
 async function handleSaveSettings() {
   const autoCheckEnabled = elements.settingAutoCheck?.checked || false;
+  // anef-statut fork: persist the anonymous-stats toggle alongside the existing settings
+  const anonymousStatsEnabled = elements.settingAnonymousStats
+    ? !!elements.settingAnonymousStats.checked
+    : true;
 
   await storage.saveSettings({
     notificationsEnabled: elements.settingNotifications?.checked ?? true,
     autoCheckEnabled,
+    anonymousStatsEnabled,
     historyLimit: parseInt(elements.settingHistoryLimit?.value || '100', 10)
   });
 
