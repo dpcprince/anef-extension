@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "anef-statut (fork)",
-  "version": "2.7.0.3",
-  "version_name": "2.7.0-anefstatut.3",
+  "version": "2.7.0.4",
+  "version_name": "2.7.0-anefstatut.4",
   "description": "Fork de l'extension ANEF Status — opt-in consent, KPIs corrigés, comparaison sur anef-statut.",
   "author": "anef-statut",
   "default_locale": "fr",

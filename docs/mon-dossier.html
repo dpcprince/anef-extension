@@ -209,6 +209,25 @@
             <div class="text-text-dim text-xs" id="md-out-since-change-sub"></div>
           </div>
         </div>
+
+        <!-- Rich step description + step progress bar -->
+        <div class="md-status-detail" id="md-status-detail" style="display:none">
+          <div class="md-status-detail-head">
+            <span class="md-status-detail-step" id="md-status-detail-step">—</span>
+            <span class="md-status-detail-phase" id="md-status-detail-phase">—</span>
+            <code class="md-status-detail-code" id="md-status-detail-code">—</code>
+          </div>
+          <p class="md-status-detail-text" id="md-status-detail-text">—</p>
+          <!-- 12-step progression bar -->
+          <div class="md-progress" aria-hidden="true">
+            <div class="md-progress-fill" id="md-progress-fill" style="width:0%"></div>
+          </div>
+          <div class="md-progress-labels">
+            <span data-i18n="mondossier.progress_depot">Dépôt</span>
+            <span class="md-progress-step-counter" id="md-progress-step-counter">—</span>
+            <span data-i18n="mondossier.progress_decret">Décret</span>
+          </div>
+        </div>
       </div>
 
       <!-- Et après cette étape ? (next-step distribution) -->

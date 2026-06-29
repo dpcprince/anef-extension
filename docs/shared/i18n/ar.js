@@ -61,6 +61,8 @@
     'mondossier.sync_success': "✓ البيانات مُملاة مسبقًا من الإضافة. يمكنك تعديلها بحرية.",
     'mondossier.sync_no_data': "تم اكتشاف الإضافة — لكن لم يتم العثور على بيانات الملف. قم بزيارة صفحة ANEF أولاً، ثم عُد إلى هنا.",
     'mondossier.sync_unavailable': "لم يتم اكتشاف إضافة ANEF. أدخل بياناتك يدويًا.",
+    'mondossier.progress_depot': "الإيداع",
+    'mondossier.progress_decret': "المرسوم",
     'mondossier.sync_install_btn': "تثبيت الإضافة",
     'mondossier.entree_etape_hint': 'بالنسبة للمرحلة 8 (قرار الولاية)، يكون عادة تاريخ مقابلة الاستيعاب. تعبئته يعطي مقارنة عادلة تقاوم التذبذب بين الحالات الفرعية.',
     'mondossier.empty_state': 'أدخل على الأقل الولاية والحالة وتاريخ الإيداع لمعرفة موقعك.',

@@ -71,6 +71,8 @@
     'mondossier.sync_success': "✓ Données pré-remplies depuis l'extension. Tu peux les modifier librement.",
     'mondossier.sync_no_data': "Extension détectée — mais aucune donnée de dossier trouvée. Visite d'abord ta page ANEF, puis reviens ici.",
     'mondossier.sync_unavailable': "Pas d'extension ANEF détectée. Tu peux saisir tes données manuellement ci-dessous.",
+    'mondossier.progress_depot': "Dépôt",
+    'mondossier.progress_decret': "Décret",
     'mondossier.sync_install_btn': "Installer l'extension",
     'mondossier.entree_etape_hint': 'Pour l’étape 8 (Décision préfecture), c’est généralement la date de l’entretien d’assimilation. Permet une comparaison juste, qui résiste au ping-pong entre sous-statuts.',
     'mondossier.empty_state': 'Saisis au moins la préfecture, le statut et la date de dépôt pour voir où tu te situes.',

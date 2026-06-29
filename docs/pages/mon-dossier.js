@@ -453,6 +453,32 @@
     }
     U.setText('md-out-at-etape', daysEtape != null ? U.formatDuration(daysEtape) : '—');
 
+    // ─── Rich status description + 12-step progress bar ───
+    // Surfaces the same content as the extension's popup so the user sees
+    // a full explanation of what's happening at their current step.
+    var detailBox = document.getElementById('md-status-detail');
+    if (detailBox) {
+      if (statutInfo && etape) {
+        detailBox.style.display = '';
+        var stepLabel = C.formatSubStep ? C.formatSubStep(statutInfo.rang) : ('Étape ' + etape);
+        U.setText('md-status-detail-step', stepLabel + '/12');
+        U.setText('md-status-detail-phase', statutInfo.explication || phase);
+        U.setText('md-status-detail-code', i.statut.toUpperCase());
+        // Rich description from the shared STATUTS dictionary — same source
+        // the extension's popup uses. Falls back to short explication if
+        // no description is registered for this code.
+        var rich = statutInfo.description || statutInfo.explication || '';
+        U.setText('md-status-detail-text', rich);
+        // 12-step progress bar — étape goes 1..12. Display width = etape/12.
+        var pct = Math.min(100, Math.max(0, Math.round(etape / 12 * 100)));
+        var fill = document.getElementById('md-progress-fill');
+        if (fill) fill.style.width = pct + '%';
+        U.setText('md-progress-step-counter', etape + '/12');
+      } else {
+        detailBox.style.display = 'none';
+      }
+    }
+
     // Préfecture context tiles
     var prefSummaries = state.summaries.filter(function(s) {
       return canonPref(s.prefecture) === i.prefecture;

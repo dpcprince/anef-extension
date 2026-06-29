@@ -3601,4 +3601,74 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: now
   .md-form-label { font-size: 0.72rem; }
 }
 
+/* Rich status description + 12-step progress bar (Mon dossier) */
+.md-status-detail {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.md-status-detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.75rem;
+  margin-bottom: 0.4rem;
+}
+.md-status-detail-step {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary-light);
+  background: rgba(59,130,246,0.12);
+  padding: 0.15rem 0.55rem;
+  border-radius: 4px;
+}
+.md-status-detail-phase {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.md-status-detail-code {
+  font-size: 0.7rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--text-dim);
+  background: var(--bg);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  margin-left: auto;
+}
+.md-status-detail-text {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0 0 0.85rem;
+}
+
+.md-progress {
+  height: 8px;
+  background: var(--bg-hover);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+.md-progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, #3b82f6, #60a5fa);
+  border-radius: 4px;
+  transition: width 0.35s ease;
+}
+.md-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 0.35rem;
+}
+.md-progress-step-counter {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
 

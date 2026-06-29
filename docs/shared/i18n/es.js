@@ -60,6 +60,8 @@
     'mondossier.sync_success': "✓ Datos pre-rellenados desde la extensión. Puedes editarlos libremente.",
     'mondossier.sync_no_data': "Extensión detectada — pero no se encontraron datos del expediente. Visita primero tu página ANEF, luego vuelve aquí.",
     'mondossier.sync_unavailable': "No se detectó ninguna extensión ANEF. Introduce tus datos manualmente.",
+    'mondossier.progress_depot': "Depósito",
+    'mondossier.progress_decret': "Decreto",
     'mondossier.sync_install_btn': "Instalar la extensión",
     'mondossier.entree_etape_hint': 'Para la etapa 8 (Decisión prefectural), suele ser la fecha de la entrevista de asimilación. Rellenarlo da una comparación justa, resistente al ping-pong entre subestatutos.',
     'mondossier.empty_state': 'Introduce al menos la prefectura, el estatus y la fecha de depósito para ver dónde te sitúas.',

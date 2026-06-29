@@ -60,6 +60,8 @@
     'mondossier.sync_success': "✓ Data pre-filled from the extension. You can edit freely.",
     'mondossier.sync_no_data': "Extension detected — but no case data found. Visit your ANEF page first, then come back here.",
     'mondossier.sync_unavailable': "No ANEF extension detected. Fill in your data manually below.",
+    'mondossier.progress_depot': "Filing",
+    'mondossier.progress_decret': "Decree",
     'mondossier.sync_install_btn': "Install the extension",
     'mondossier.entree_etape_hint': 'For step 8 (Prefectural decision), this is typically the date of the assimilation interview. Filling it in gives a fair comparison that survives ping-pong between sub-statuses.',
     'mondossier.empty_state': 'Enter at least your prefecture, status and filing date to see where you stand.',

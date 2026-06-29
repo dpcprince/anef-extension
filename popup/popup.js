@@ -9,7 +9,7 @@
 
 import { getStatusExplanation, formatDuration, formatDate, formatDateShort, formatTimestamp, daysSince, daysBetween, isPositiveStatus, isNegativeStatus, isClosedStatus, formatSubStep, STEP_DEFAULTS } from '../lib/status-parser.js';
 import { downloadLogs } from '../lib/logger.js';
-import { DASHBOARD_BASE_URL, DASHBOARD_MON_DOSSIER_PATH } from '../lib/constants.js';
+import { DASHBOARD_BASE_URL, DASHBOARD_MON_DOSSIER_PATH, SUPABASE_URL, SUPABASE_ANON_KEY } from '../lib/constants.js';
 // ─────────────────────────────────────────────────────────────
 // Citations sur la patience
 // ─────────────────────────────────────────────────────────────
@@ -841,8 +841,10 @@ function canonicalisePrefecture(p) {
     .replace(/['’]/g, "'");
 }
 
-/** Load the cohort index, building it lazily from the public snapshots.json
- *  on first call. Cached in chrome.storage.local for MD_COMPARE_TTL_MS. */
+/** Load the cohort index — fetches directly from upstream Supabase (the
+ *  static snapshots.json was removed from the dashboard repo in favour of
+ *  live Supabase reads). Cached in chrome.storage.local for MD_COMPARE_TTL_MS.
+ */
 async function loadCohortIndex() {
   // Read cache first
   try {
@@ -853,11 +855,21 @@ async function loadCohortIndex() {
     }
   } catch (_e) { /* ignore */ }
 
-  // Build from fresh snapshots
-  const url = DASHBOARD_BASE_URL + '/data/snapshots.json';
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const snaps = await res.json();
+  // Fresh fetch — paginate Supabase REST (1000 rows per page).
+  const COLUMNS = 'public_id,statut,date_depot,date_statut,prefecture,checked_at';
+  const PAGE_SIZE = 1000;
+  let snaps = [];
+  for (let offset = 0; offset < 50000; offset += PAGE_SIZE) {
+    const url = `${SUPABASE_URL}/rest/v1/dossier_snapshots?select=${COLUMNS}&order=created_at.desc&limit=${PAGE_SIZE}&offset=${offset}`;
+    const res = await fetch(url, {
+      cache: 'no-store',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+    });
+    if (!res.ok) throw new Error('Supabase HTTP ' + res.status);
+    const page = await res.json();
+    snaps = snaps.concat(page);
+    if (page.length < PAGE_SIZE) break;
+  }
 
   const byDossier = new Map();
   for (const s of snaps) {

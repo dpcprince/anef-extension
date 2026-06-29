@@ -61,6 +61,8 @@
     'mondossier.sync_success': "✓ 已从扩展自动填充数据。可自由编辑。",
     'mondossier.sync_no_data': "已检测到扩展 — 但未找到案卷数据。请先访问你的 ANEF 页面，然后返回此处。",
     'mondossier.sync_unavailable': "未检测到 ANEF 扩展。请在下方手动输入你的数据。",
+    'mondossier.progress_depot': "提交",
+    'mondossier.progress_decret': "法令",
     'mondossier.sync_install_btn': "安装扩展",
     'mondossier.entree_etape_hint': '对于第 8 阶段（省府决定），这通常是同化面谈的日期。填写后可获得公正的比较，不受子状态之间反复切换的影响。',
     'mondossier.empty_state': '至少输入省份、状态和提交日期，即可看到您的位置。',

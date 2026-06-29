@@ -94,8 +94,22 @@
     return all;
   }
 
-  /** Fetch snapshots: static JSON first, Supabase API fallback */
+  /** Fetch snapshots: static JSON first IFF Supabase isn't reachable; otherwise
+   *  go straight to Supabase. The fork hardcodes upstream's public anon key,
+   *  so on dpcprince.github.io the static file doesn't exist and falling
+   *  through to a 404 is wasted noise in the console. */
+  var _supabaseConfigured = _SB_URL && !_SB_URL.startsWith('__') && _SB_KEY && !_SB_KEY.startsWith('__');
   async function fetchAllSnapshots() {
+    if (_supabaseConfigured) {
+      // Supabase is the canonical source — skip the static fetch (which on
+      // dpcprince.github.io would 404 and pollute the console).
+      try {
+        return await fetchFromSupabase();
+      } catch(e) {
+        // Network failure mid-pagination? Try the static file as a last resort.
+        return await fetchStaticSnapshots();
+      }
+    }
     try {
       return await fetchStaticSnapshots();
     } catch(e) {
