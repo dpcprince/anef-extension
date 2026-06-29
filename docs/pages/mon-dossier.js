@@ -38,8 +38,52 @@
       dateEntreeEtape: ''
     },
     // Sync banner state machine: pending → success/unavailable/no_data
-    syncState: 'pending'
+    syncState: 'pending',
+    // Race-condition fix: the extension's content script fires at
+    // document_idle, often BEFORE mon-dossier.js finishes its async
+    // `await D.loadData()`. If we register the message listener after
+    // the await, the message is lost. So we register the listener at
+    // module load (below, outside DOMContentLoaded) and queue here.
+    _pendingExtensionData: null,
+    _initComplete: false
   };
+
+  // ─── Early postMessage listener (fix race vs content script) ──
+  // Registered at script-load time, before any await. If a message
+  // arrives before initInputs() ran, we stash it in state._pendingExtensionData
+  // and drain it after init.
+  window.addEventListener('message', function(ev) {
+    if (ev.source !== window) return;
+    if (!ev.data || ev.data.source !== 'anef-statut-extension') return;
+    console.log('[mon-dossier] received message from extension:', ev.data);
+    if (state._initComplete) {
+      _applyExtensionMessage(ev.data);
+    } else {
+      // Queue — drained at end of init. Last write wins (multiple posts unlikely).
+      state._pendingExtensionData = ev.data;
+    }
+  });
+
+  function _applyExtensionMessage(payload) {
+    // Cancel "no extension" timeout — receiving any message proves one is installed.
+    if (_syncPendingTimer) { clearTimeout(_syncPendingTimer); _syncPendingTimer = null; }
+    var d = payload && payload.dossier;
+    if (!d || (!d.prefecture && !d.statut && !d.dateDepot)) {
+      setSyncState('no_data');
+      return;
+    }
+    if (d.prefecture) setPrefecture(d.prefecture);
+    if (d.statut) setStatut(String(d.statut).toLowerCase());
+    if (d.dateDepot) setDate('depot', d.dateDepot);
+    if (d.dateEntretien) setDate('entretien', d.dateEntretien);
+    if (d.dateEntreeEtape) setDate('entree-etape', d.dateEntreeEtape);
+    if (d.prefecture && d.statut && d.dateDepot) {
+      setSyncState('success');
+    } else {
+      setSyncState('no_data');
+    }
+    render();
+  }
 
   document.addEventListener('DOMContentLoaded', async function() {
     var loading = document.getElementById('loading');
@@ -62,19 +106,16 @@
 
       initInputs();
       initMethodologyModal();
-      // Order matters: listenForExtensionPostMessage BEFORE hydrate so we
-      // catch the content script's message (it fires at document_idle and
-      // mon-dossier.js runs after DOMContentLoaded — but the page hash adds
-      // race risk; better to register the listener first).
-      listenForExtensionPostMessage();
       armSyncTimeout();
       hydrateFromURL();
       hydrateFromStorage();
-      // Initial state: if URL/storage already populated all required inputs,
-      // we don't need to show "pending" — flip to no_data with a softer message.
-      if (state.syncState === 'pending' && state.inputs.prefecture && state.inputs.statut && state.inputs.dateDepot) {
-        // The user already had data locally; sync banner can flip to a quiet info.
-        // (We still leave the timeout armed in case extension fires shortly.)
+      // Mark init complete and drain any extension message queued before
+      // initInputs() finished (fixes the async race vs content script).
+      state._initComplete = true;
+      if (state._pendingExtensionData) {
+        var pending = state._pendingExtensionData;
+        state._pendingExtensionData = null;
+        _applyExtensionMessage(pending);
       }
       render();
     } catch (err) {
@@ -292,34 +333,12 @@
     } catch (e) { /* ignore */ }
   }
 
-  function listenForExtensionPostMessage() {
-    window.addEventListener('message', function(ev) {
-      if (ev.source !== window) return;
-      if (!ev.data || ev.data.source !== 'anef-statut-extension') return;
-      console.log('[mon-dossier] received message from extension:', ev.data);
-      // Sentinel: presence of this message alone proves the extension is installed.
-      // Cancel the "no extension" timeout.
-      if (_syncPendingTimer) { clearTimeout(_syncPendingTimer); _syncPendingTimer = null; }
-      var d = ev.data.dossier;
-      if (!d || (!d.prefecture && !d.statut && !d.dateDepot)) {
-        // Extension found, but chrome.storage had no dossier yet — user
-        // hasn't visited their ANEF page since installing.
-        setSyncState('no_data');
-        return;
-      }
-      if (d.prefecture) setPrefecture(d.prefecture);
-      if (d.statut) setStatut(String(d.statut).toLowerCase());
-      if (d.dateDepot) setDate('depot', d.dateDepot);
-      if (d.dateEntretien) setDate('entretien', d.dateEntretien);
-      if (d.dateEntreeEtape) setDate('entree-etape', d.dateEntreeEtape);
-      if (d.prefecture && d.statut && d.dateDepot) {
-        setSyncState('success');
-      } else {
-        setSyncState('no_data');
-      }
-      render();
-    });
-  }
+  // Note: the postMessage listener used to live here as
+  // `listenForExtensionPostMessage()` called from DOMContentLoaded.
+  // That created a race: the content script's document_idle fires
+  // during our `await D.loadData()`, before the listener registers,
+  // so the message is lost. Listener is now registered at module load
+  // (top of file) with a queue/drain pattern to fix the race.
 
   function setPrefecture(v) {
     state.inputs.prefecture = v;
